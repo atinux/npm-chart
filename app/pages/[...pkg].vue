@@ -41,7 +41,7 @@ const { data, pending } = await useFetch(`/api/${pkg}`, {
     </p>
     <USkeleton v-else-if="pending" class="w-full h-4 mt-2" />
     <a
-      v-if="data"
+      v-if="data?.homepage"
       :href="data.homepage"
       target="_blank"
       class="text-primary hover:underline"
