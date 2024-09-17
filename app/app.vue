@@ -11,16 +11,16 @@ useHead({
   <NuxtLoadingIndicator color="rgb(var(--color-primary-DEFAULT))" />
   <div class="flex flex-col items-center sm:justify-center sm:h-screen mx-auto">
     <NuxtPage />
+    <footer class="flex items-center justify-center bottom-6 w-full text-sm text-gray-500 px-10" :class="$route.path === '/' ? 'fixed' : 'sm:fixed mt-6'">
+      <p class="text-center">
+        Made by <a href="https://x.com/atinux" target="_blank">Atinux</a>
+        <span class="mx-1">&middot;</span>
+        Deployed on <a href="https://hub.nuxt.com/?utm_source=npm-chart">NuxtHub</a>
+        <span class="mx-1">&middot;</span>
+        Source code on <a href="https://github.com/atinux/npm-chart" target="_blank">GitHub</a>
+      </p>
+    </footer>
   </div>
-  <footer class="flex items-center justify-center bottom-6 w-full text-sm text-gray-500 px-10" :class="$route.path === '/' ? 'fixed' : 'sm:fixed mt-10'">
-    <p class="text-center">
-      Made by <a href="https://x.com/atinux" target="_blank">Atinux</a>
-      <span class="mx-1">&middot;</span>
-      Deployed on <a href="https://hub.nuxt.com/?utm_source=npm-chart">NuxtHub</a>
-      <span class="mx-1">&middot;</span>
-      Source code on <a href="https://github.com/atinux/npm-chart" target="_blank">GitHub</a>
-    </p>
-  </footer>
 </template>
 
 <style lang="postcss">
