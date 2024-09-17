@@ -4,7 +4,7 @@
   <div class="flex flex-col items-center py-10 sm:py-0 sm:justify-center sm:h-screen mx-auto">
     <NuxtPage />
   </div>
-  <footer class="flex items-center justify-center sm:fixed bottom-6 w-full text-sm text-gray-500 px-2">
+  <footer class="flex items-center justify-center sm:fixed bottom-6 w-full text-sm text-gray-500 px-10">
     <p class="text-center">
       Made by <a href="https://x.com/atinux" target="_blank">Atinux</a>
       <span class="mx-1">&middot;</span>
