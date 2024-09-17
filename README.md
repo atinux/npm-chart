@@ -10,7 +10,14 @@ https://npm.chart.dev
 - Downloads chart to png or svg
 - Metrics are cached for maximum performance
 - Running on the Edge with [NuxtHub](https://hub.nuxt.com)
-- Using [npm-stat.com API](https://npm-stat.com)
+- Using [npm-stat.com](https://npm-stat.com) API
+
+## TODO:
+
+- [ ] Plausible
+- [ ] Screenshot PNG/SVG
+- [ ] OG Image
+- [ ] Share on X
 
 ## Setup
 

@@ -15,17 +15,15 @@ useSeoMeta({
 <template>
   <NuxtRouteAnnouncer />
   <NuxtLoadingIndicator color="rgb(var(--color-primary-DEFAULT))" />
-  <div class="flex flex-col items-center sm:justify-center sm:h-screen mx-auto">
+  <div class="flex flex-col items-center sm:justify-center sm:h-screen mx-auto px-6 sm:px-0">
     <NuxtPage />
-    <footer class="flex items-center justify-center bottom-6 w-full text-sm text-gray-500 px-10" :class="$route.path === '/' ? 'fixed' : 'sm:fixed mt-6'">
+    <footer class="flex items-center justify-center bottom-6 w-full text-sm text-gray-500" :class="$route.path === '/' ? 'fixed' : 'sm:fixed mt-6'">
       <p class="text-center">
         Made by <a href="https://x.com/atinux" target="_blank">Atinux</a>
         <span class="mx-1">&middot;</span>
         Deployed on <a href="https://hub.nuxt.com/?utm_source=npm-chart">NuxtHub</a>
         <span class="mx-1">&middot;</span>
         Source code on <a href="https://github.com/atinux/npm-chart" target="_blank">GitHub</a>
-        <span class="mx-1">&middot;</span>
-        Data from <a href="https://npm-stat.com" target="_blank">npm-stat.com</a>
       </p>
     </footer>
   </div>
@@ -40,6 +38,6 @@ useSeoMeta({
 }
 
 footer a {
-  @apply text-gray-400 hover:underline underline-offset-4 dark:hover:text-white hover:text-gray-900;
+  @apply text-gray-700 dark:text-gray-300 hover:underline underline-offset-4 dark:hover:text-white hover:text-gray-900;
 }
 </style>

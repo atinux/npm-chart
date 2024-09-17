@@ -13,22 +13,27 @@ if (import.meta.server) {
     pkg: data,
   })
 }
+defineShortcuts({
+  escape: () => navigateTo('/'),
+})
 </script>
 
 <template>
   <div class="flex flex-col gap-1 w-full md:w-[680px] p-4 lg:p-0">
     <div class="flex justify-between">
-      <UButton
-        to="/"
-        variant="link"
-        :padded="false"
-        color="gray"
-        icon="i-heroicons-magnifying-glass"
-        class="opacity-70 hover:opacity-100"
-        size="xs"
-      >
-        Search another package
-      </UButton>
+      <UTooltip text="Shortcut" :shortcuts="['esc']" :popper="{ placement: 'right' }">
+        <UButton
+          to="/"
+          variant="link"
+          :padded="false"
+          color="gray"
+          icon="i-heroicons-magnifying-glass"
+          class="opacity-70 hover:opacity-100"
+          size="xs"
+        >
+          Search another package
+        </UButton>
+      </UTooltip>
       <ColorPicker />
     </div>
     <h1 class="text-2xl font-bold">

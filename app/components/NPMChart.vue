@@ -51,7 +51,6 @@ const xTicks = (i: number) => {
     return ''
   }
 
-  console.log('xTicks', i, data.value[i].date)
   return formatDate(data.value[i].date)
 }
 const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amount)}`
@@ -82,7 +81,8 @@ function selectPeriod(index: number) {
               size: 'text-xs',
               font: 'font-light',
               rounded: 'rounded-sm',
-              active: 'text-gray-800 dark:text-gray-200'
+              active: 'text-gray-800 dark:text-gray-200',
+              inactive: 'hover:text-gray-900 dark:hover:text-gray-100',
             }
           }
         }"
