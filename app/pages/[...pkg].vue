@@ -3,6 +3,16 @@ const pkg = useRoute().params.pkg.join('/')
 const { data, pending } = await useFetch(`/api/${pkg}`, {
   lazy: import.meta.client,
 })
+useSeoMeta({
+  title: () => `${data.value?.name || pkg} npm downloads - NPM Chart`,
+  ogTitle: () => `${data.value?.name || pkg} npm downloads`,
+  description: () => data.value?.description || '',
+})
+if (import.meta.server) {
+  defineOgImageComponent('Package', {
+    pkg: data,
+  })
+}
 </script>
 
 <template>
@@ -23,7 +33,7 @@ const { data, pending } = await useFetch(`/api/${pkg}`, {
     </div>
     <h1 class="text-2xl font-bold">
       <span v-if="data || pending" class="flex items-baseline gap-1.5">
-        {{ data?.name || pkg }}
+        <span class="lowercase">{{ data?.name || pkg }}</span>
         <a
           v-if="data"
           class="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"

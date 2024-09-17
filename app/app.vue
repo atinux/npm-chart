@@ -24,6 +24,8 @@ useSeoMeta({
         Deployed on <a href="https://hub.nuxt.com/?utm_source=npm-chart">NuxtHub</a>
         <span class="mx-1">&middot;</span>
         Source code on <a href="https://github.com/atinux/npm-chart" target="_blank">GitHub</a>
+        <span class="mx-1">&middot;</span>
+        Data from <a href="https://npm-stat.com" target="_blank">npm-stat.com</a>
       </p>
     </footer>
   </div>

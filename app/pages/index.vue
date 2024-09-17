@@ -24,7 +24,7 @@ useSeoMeta({
     <h1 class="text-4xl font-bold uppercase">
       NPM Chart
     </h1>
-    <p class="text-sm text-gray-500 mt-1">
+    <p class="text-sm text-gray-500 mt-1 text-center">
       Search for a package to see its download stats over time.
     </p>
     <form class="flex gap-1 mt-4" @submit.prevent="goToPackage(pkg)">
