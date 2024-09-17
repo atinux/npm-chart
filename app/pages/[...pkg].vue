@@ -6,7 +6,7 @@ const { data, pending } = await useFetch(`/api/${pkg}`, {
 </script>
 
 <template>
-  <div class="flex flex-col gap-1 w-full lg:w-[600px] p-4 lg:p-0">
+  <div class="flex flex-col gap-1 w-full md:w-[680px] p-4 lg:p-0">
     <div class="flex justify-between">
       <UButton
         to="/"
@@ -55,7 +55,7 @@ const { data, pending } = await useFetch(`/api/${pkg}`, {
         <NPMChart v-if="data" :data="data.downloads" />
         <USkeleton v-else-if="pending" class="w-full h-[412px]" />
         <template #fallback>
-          <USkeleton class="w-full h-[412px]" />
+          <USkeleton class="w-full h-[425px]" />
         </template>
       </ClientOnly>
     </div>

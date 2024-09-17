@@ -3,16 +3,13 @@ import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format } fr
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 
 const cardRef = ref<HTMLElement | null>(null)
+const period = ref<Period>('monthly')
 const { width } = useElementSize(cardRef)
 
 const props = defineProps({
   data: {
     type: Object as PropType<Record<string, number>>,
     required: true
-  },
-  period: {
-    type: String as PropType<Period>,
-    default: 'monthly'
   }
 })
 
@@ -28,13 +25,13 @@ const y = (d: DataRecord) => d.amount
 
 const data = computed(() => {
   const periodData = {}
-  const periodFormat = props.period === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
+  const periodFormat = period.value === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
   for (const date in props.data) {
     const period = format(date, periodFormat)
     periodData[period] ||= { amount: 0, date }
     periodData[period].amount += props.data[date]
   }
-  return Object.entries(periodData).map(([period, { date, amount }]) => ({ date: formatDate(date), amount }))
+  return Object.entries(periodData).map(([period, { date, amount }]) => ({ date, amount }))
 })
 
 const total = computed(() => data.value.reduce((acc: number, { amount }) => acc + amount, 0))
@@ -46,7 +43,7 @@ const formatDate = (date: Date): string => {
   return ({
     weekly: format(date, 'd MMM'),
     monthly: format(date, 'MMM yyy')
-  })[props.period]
+  })[period.value]
 }
 
 const xTicks = (i: number) => {
@@ -54,14 +51,43 @@ const xTicks = (i: number) => {
     return ''
   }
 
+  console.log('xTicks', i, data.value[i].date)
   return formatDate(data.value[i].date)
 }
 const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amount)}`
+function selectPeriod(index: number) {
+  period.value = index === 0 ? 'monthly' : 'weekly'
+}
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 w-full lg:w-[600px]" ref="cardRef">
-    <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+  <div class="flex flex-col gap-2 w-full md:w-[680px]" ref="cardRef">
+    <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
+      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+      <UTabs
+        :items="[{ label: 'month' }, { label: 'week' }]"
+        @change="selectPeriod"
+        :ui="{
+          list: {
+            height: 'h-6',
+            padding: 'p-0.5',
+            background: 'bg-gray-100 dark:bg-gray-950',
+            marker: {
+              rounded: 'rounded-md',
+              background: 'bg-white dark:bg-gray-900',
+            },
+            tab: {
+              height: 'h-5',
+              padding: 'px-2',
+              size: 'text-xs',
+              font: 'font-light',
+              rounded: 'rounded-sm',
+              active: 'text-gray-800 dark:text-gray-200'
+            }
+          }
+        }"
+      />
+    </div>
     <VisXYContainer :data="data" class="h-96" :width="width">
       <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
       <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
