@@ -12,7 +12,7 @@ useHead({
   <div class="flex flex-col items-center sm:justify-center sm:h-screen mx-auto">
     <NuxtPage />
   </div>
-  <footer class="flex items-center justify-center fixed bottom-6 w-full text-sm text-gray-500 px-10">
+  <footer class="flex items-center justify-center bottom-6 w-full text-sm text-gray-500 px-10" :class="$route.path === '/' ? 'fixed' : 'sm:fixed mt-10'">
     <p class="text-center">
       Made by <a href="https://x.com/atinux" target="_blank">Atinux</a>
       <span class="mx-1">&middot;</span>
