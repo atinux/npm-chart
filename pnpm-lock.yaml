@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@iconify-json/heroicons':
+        specifier: ^1.2.0
+        version: 1.2.0
       '@nuxt/eslint':
         specifier: ^0.5.7
         version: 0.5.7(eslint@9.10.0(jiti@1.21.6))(magicast@0.3.5)(rollup@4.21.0)(typescript@5.4.5)(vite@5.4.5(@types/node@20.14.9)(terser@5.31.1))(webpack-sources@3.2.3)

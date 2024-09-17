@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const pkg = ref('')
+const packages = ['vue', 'react', 'svelte', 'angular', 'next', 'nuxt', 'astro', 'supabase', 'lodash', 'date-fns', 'express', 'h3', 'nitropack', 'typescript', 'vite']
+// Get 4 random packages
+const randomPackages = useState('pkgs', () => {
+  const clone = packages.slice()
+  return clone.sort(() => 0.5 - Math.random()).slice(0, 4)
+})
 </script>
 
 <template>
@@ -13,27 +19,11 @@ const pkg = ref('')
     </form>
     <div class="flex gap-1 mt-2">
       <UButton
-        to="/vue"
+        v-for="pkg in randomPackages"
+        :key="pkg"
+        :to="`/${pkg}`"
         color="gray"
-        label="vue"
-        size="xs"
-      />
-      <UButton
-        to="/react"
-        color="gray"
-        label="react"
-        size="xs"
-      />
-      <UButton
-        to="/svelte"
-        color="gray"
-        label="svelte"
-        size="xs"
-      />
-      <UButton
-        to="/angular"
-        color="gray"
-        label="angular"
+        :label="pkg"
         size="xs"
       />
     </div>

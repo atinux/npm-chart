@@ -61,7 +61,7 @@ const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amo
 
 <template>
   <div class="flex flex-col gap-2 w-full lg:w-[600px]" ref="cardRef">
-    <div class="text-sm text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads.</div>
+    <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
     <VisXYContainer :data="data" class="h-96" :width="width">
       <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
       <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />

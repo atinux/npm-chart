@@ -14,7 +14,10 @@ export default defineNuxtConfig({
   ],
 
   // https://hub.nuxt.com/docs/getting-started/installation#options
-  hub: {},
+  hub: {
+    // https://hub.nuxt.com/docs/features/cache
+    cache: true
+  },
 
   // Env variables - https://nuxt.com/docs/getting-started/configuration#environment-variables-and-private-tokens
   runtimeConfig: {
