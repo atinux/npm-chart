@@ -14,7 +14,7 @@ function goToPackage(pkg: string) {
 </script>
 
 <template>
-  <div>
+  <div class="flex flex-col items-center justify-center h-screen">
     <h1 class="text-4xl font-bold uppercase">
       NPM Chart
     </h1>
@@ -22,7 +22,7 @@ function goToPackage(pkg: string) {
       <UInput v-model="pkg" placeholder="npm package" autofocus />
       <UButton type="submit" icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" />
     </form>
-    <div class="flex gap-1 mt-2">
+    <div class="flex gap-1 mt-3">
       <UButton
         v-for="pkg in randomPackages"
         :key="pkg"
