@@ -20,7 +20,7 @@ function goToPackage(pkg: string) {
     </h1>
     <form class="flex gap-1 mt-4" @submit.prevent="goToPackage(pkg)">
       <UInput v-model="pkg" placeholder="npm package" autofocus />
-      <UButton icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" />
+      <UButton type="submit" icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" />
     </form>
     <div class="flex gap-1 mt-2">
       <UButton
