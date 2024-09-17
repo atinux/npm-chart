@@ -11,6 +11,12 @@ function goToPackage(pkg: string) {
   loading.value = true
   navigateTo(`/${pkg}`)
 }
+useSeoMeta({
+  title: 'NPM Chart',
+  ogTitle: 'NPM Chart',
+  description: 'Visualize npm downloads in a beautiful chart, ready to be shared with your community.',
+  ogImage: 'https://npm.chart.dev/og-image.png',
+})
 </script>
 
 <template>
@@ -18,6 +24,9 @@ function goToPackage(pkg: string) {
     <h1 class="text-4xl font-bold uppercase">
       NPM Chart
     </h1>
+    <p class="text-sm text-gray-500 mt-1">
+      Search for a package to see its download stats over time.
+    </p>
     <form class="flex gap-1 mt-4" @submit.prevent="goToPackage(pkg)">
       <UInput v-model="pkg" placeholder="npm package" autofocus />
       <UButton type="submit" icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" />

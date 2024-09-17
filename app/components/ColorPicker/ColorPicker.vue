@@ -8,7 +8,7 @@ const colorMode = useColorMode()
 // Computed
 
 const primaryColors = computed(() =>
-  appConfig.ui.colors
+  [...appConfig.ui.colors, 'neutral']
     .filter(color => color !== 'primary')
     .map(color => ({ value: color, text: color, hex: colors[color][colorMode.value === 'dark' ? 400 : 500] })),
 )

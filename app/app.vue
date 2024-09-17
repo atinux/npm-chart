@@ -4,6 +4,9 @@ useHead({
     { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1' },
   ],
 })
+useSeoMeta({
+  twitterCard: 'summary_large_image',
+})
 </script>
 
 <template>
