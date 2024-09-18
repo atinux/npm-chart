@@ -4,6 +4,8 @@ Visualize your package npm downloads in a beautiful chart, ready to be shared wi
 
 https://npm.chart.dev
 
+https://github.com/user-attachments/assets/fb51389b-cb3d-46c2-9cd6-f72c0016269a
+
 ## Features
 
 - Beautiful page for your npm package
