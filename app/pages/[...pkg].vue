@@ -21,14 +21,16 @@ if (import.meta.server) {
   }
 }
 defineShortcuts({
-  escape: () => navigateTo('/'),
+  'escape': () => navigateTo('/'),
+  '/': () => navigateTo('/'),
+  'meta_k': () => navigateTo('/'),
 })
 </script>
 
 <template>
   <div class="flex flex-col gap-1 w-full md:w-[680px] p-4 lg:p-0">
     <div class="flex justify-between">
-      <UTooltip text="Shortcut" :shortcuts="['esc']" :popper="{ placement: 'right' }">
+      <UTooltip text="Shortcut" :shortcuts="['/']" :popper="{ placement: 'right' }">
         <UButton
           to="/"
           variant="link"

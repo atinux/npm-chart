@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { domToPng, domToSvg } from 'modern-screenshot'
 import { format } from 'date-fns'
-import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
+import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip, VisAnnotations } from '@unovis/vue'
 
 const cardRef = ref<HTMLElement | null>(null)
 const period = ref<Period>('monthly')
+const periodSelected = ref(0)
 const { width } = useElementSize(cardRef)
 
 const props = defineProps({
@@ -62,6 +63,7 @@ const xTicks = (i: number) => {
 }
 const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amount)}`
 function selectPeriod(index: number) {
+  periodSelected.value = index
   period.value = index === 0 ? 'monthly' : 'weekly'
 }
 const downloading = ref(false)
@@ -83,7 +85,10 @@ const downloadsItems = [[
   { icon: 'i-ph-file-svg-light', label: '', click: () => download('svg') },
 ]]
 defineShortcuts({
-  d: () => downloadDropdownOpen.value = !downloadDropdownOpen.value
+  m: () => selectPeriod(0),
+  w: () => selectPeriod(1),
+  'd-p': () => download('png'),
+  'd-s': () => download('svg'),
 })
 </script>
 
@@ -95,6 +100,7 @@ defineShortcuts({
         <UTabs
           :items="[{ label: 'month' }, { label: 'week' }]"
           @change="selectPeriod"
+          v-model="periodSelected"
           :ui="{
             container: 'hidden',
             list: {
@@ -143,7 +149,7 @@ defineShortcuts({
         :data="data"
         class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
         :width="width"
-        :padding="{ top: 10 }"
+        :padding="{ top: 15 }"
         :margin="{ bottom: 15, left: 10 }"
       >
         <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
@@ -153,6 +159,8 @@ defineShortcuts({
         <VisAxis type="y" :tick-format="(y) => formatNumberCompact(y)" />
 
         <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
+
+        <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg, color: 'var(--vis-annotation-text-color)' } }]" />
 
         <VisTooltip />
       </VisXYContainer>
@@ -172,6 +180,8 @@ defineShortcuts({
   --vis-tooltip-background-color: #fff;
   --vis-tooltip-border-color: rgb(var(--color-gray-200));
   --vis-tooltip-text-color: rgb(var(--color-gray-900));
+
+  --vis-annotation-text-color: rgb(var(--color-primary-500));
 }
 
 .dark {
@@ -186,6 +196,7 @@ defineShortcuts({
     --vis-tooltip-background-color: rgb(var(--color-gray-900));
     --vis-tooltip-border-color: rgb(var(--color-gray-800));
     --vis-tooltip-text-color: #fff;
+    --vis-annotation-text-color: rgb(var(--color-primary-400));
   }
 }
 </style>
