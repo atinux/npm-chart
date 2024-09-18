@@ -64,41 +64,18 @@ const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amo
 function selectPeriod(index: number) {
   period.value = index === 0 ? 'monthly' : 'weekly'
 }
-const processingDownloadableAsset = ref(false)
-// Only show the loader if there's a delay in generation for 
-// over a certain limit. 
-function showLoaderWithDelay() {
-  let handle
-  function start() {
-    handle = setTimeout(() => {
-      processingDownloadableAsset.value = true
-    },
-      // TODO: move to a place with other constants 
-      550);
-  }
-
-  return function end() {
-    if (handle) clearTimeout(handle)
-    processingDownloadableAsset.value = false
-  }
-}
+const downloading = ref(false)
 async function download(type: 'png' | 'svg') {
-  const endLoader = showLoaderWithDelay()
-  try {
-    const downloadMethod = type === 'png' ? domToPng : domToSvg
-    const dataUrl = await downloadMethod(document.querySelector('#npm-chart') as Node, {
-      scale: 3,
-      style: {
-        // margin: '10px'
-      }
-    })
-    const link = document.createElement('a')
-    link.download = `${props.pkg}-downloads.${type}`
-    link.href = dataUrl
-    link.click()
-  } finally {
-    endLoader()
-  }
+  downloading.value = true
+  const downloadMethod = type === 'png' ? domToPng : domToSvg
+  const dataUrl = await downloadMethod(document.querySelector('#npm-chart') as Node, {
+    scale: 3
+  })
+  const link = document.createElement('a')
+  link.download = `${props.pkg}-downloads.${type}`
+  link.href = dataUrl
+  link.click()
+  downloading.value = false
 }
 const downloadDropdownOpen = ref(false)
 const downloadsItems = [[
@@ -140,11 +117,7 @@ defineShortcuts({
             }
           }"
         />
-        <div v-if="processingDownloadableAsset" class="mt-1 animate-spin flex justify-center items-center">
-          <Icon name="i-ph:circle-notch" class="bg-primary-800 dark:bg-primary-200" />
-        </div>
         <UDropdown
-          v-if="!processingDownloadableAsset"
           v-model:open="downloadDropdownOpen"
           :items="downloadsItems"
           :ui="{
@@ -161,7 +134,7 @@ defineShortcuts({
             }
           }"
         >
-          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false" aria-label="Download chart" />
+          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false" aria-label="Download chart" :loading="downloading" />
         </UDropdown>
       </div>
     </div>
