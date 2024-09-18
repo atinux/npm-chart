@@ -66,7 +66,7 @@ defineShortcuts({
       v-if="data?.homepage"
       :href="data.homepage"
       target="_blank"
-      class="text-primary hover:underline"
+      class="text-primary hover:underline truncate"
     >
       {{ data.homepage.replace(/^https?:\/\//, '').replace(/\/$/, '') }}
     </a>
