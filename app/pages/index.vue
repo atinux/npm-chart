@@ -28,8 +28,19 @@ useSeoMeta({
       Search for a package to see its download stats over time.
     </p>
     <form class="flex gap-1 mt-4" @submit.prevent="goToPackage(pkg)">
-      <UInput v-model="pkg" placeholder="npm package" autofocus />
-      <UButton type="submit" icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" aria-label="Search" />
+      <UInput
+        v-model="pkg"
+        size="lg"
+        placeholder="npm package"
+        autofocus
+        :ui="{
+          trailing: { padding: { lg: 'pr-13' } },
+          icon: { trailing: { padding: { lg: 'pr-1' } } }
+        }">
+        <template #trailing>
+          <UButton type="submit" icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" aria-label="Search" />
+        </template>
+      </UInput>
     </form>
     <div class="flex gap-1 mt-3">
       <UButton
