@@ -23,6 +23,7 @@ if (import.meta.server) {
 defineShortcuts({
   'escape': () => navigateTo('/'),
   '/': () => navigateTo('/'),
+  'meta_k': () => navigateTo('/'),
 })
 </script>
 
