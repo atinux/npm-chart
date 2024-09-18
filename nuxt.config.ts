@@ -13,6 +13,12 @@ export default defineNuxtConfig({
     cache: true
   },
 
+  icon: {
+    clientBundle: {
+      scan: true
+    },
+  },
+
   // Env variables - https://nuxt.com/docs/getting-started/configuration#environment-variables-and-private-tokens
   runtimeConfig: {
     public: {
