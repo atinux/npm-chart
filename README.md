@@ -1,6 +1,6 @@
 # NPM Chart
 
-Visualize npm downloads in a beautiful chart, ready to be shared with your community.
+Visualize your package npm downloads in a beautiful chart, ready to be shared with your community.
 
 https://npm.chart.dev
 
@@ -12,11 +12,13 @@ https://npm.chart.dev
 - Running on the Edge with [NuxtHub](https://hub.nuxt.com)
 - Using [npm-stat.com](https://npm-stat.com) API
 
-## TODO:
+## Stack
 
-- [ ] Screenshot PNG/SVG
-- [ ] Page speed
-- [ ] Share on X
+- [Nuxt](https://github.com/nuxt/nuxt) + [UI](https://github.com/nuxt/ui) + [Icon](https://github.com/nuxt/icon) + [Fonts](https://github.com/nuxt/fonts)
+- [Nuxt OG Image](https://github.com/nuxt-modules/og-image)
+- [NuxtHub](https://github.com/nuxthub/core)
+- [UnoVis](https://github.com/f5/unovis)
+- [Modern Screenshot](https://github.com/qq15725/modern-screenshot?tab=readme-ov-file)
 
 ## Setup
 

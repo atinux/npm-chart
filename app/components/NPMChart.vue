@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { domToPng, domToSvg } from 'modern-screenshot'
 import { format } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 
@@ -7,6 +8,10 @@ const period = ref<Period>('monthly')
 const { width } = useElementSize(cardRef)
 
 const props = defineProps({
+  pkg: {
+    type: String,
+    required: true
+  },
   total: {
     type: Number,
     required: true
@@ -59,48 +64,99 @@ const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amo
 function selectPeriod(index: number) {
   period.value = index === 0 ? 'monthly' : 'weekly'
 }
+async function download(type: 'png' | 'svg') {
+  const downloadMethod = type === 'png' ? domToPng : domToSvg
+  const dataUrl = await downloadMethod(document.querySelector('#npm-chart') as Node, {
+    scale: 3,
+    style: {
+      // margin: '10px'
+    }
+  })
+  const link = document.createElement('a')
+  link.download = `${props.pkg}-downloads.${type}`
+  link.href = dataUrl
+  link.click()
+}
+const downloadDropdownOpen = ref(false)
+const downloadsItems = [[
+  { icon: 'i-ph-file-png-light', label: '', click: () => download('png') },
+  { icon: 'i-ph-file-svg-light', label: '', click: () => download('svg') },
+]]
+defineShortcuts({
+  d: () => downloadDropdownOpen.value = !downloadDropdownOpen.value
+})
 </script>
 
 <template>
   <div class="flex flex-col gap-2 w-full md:w-[680px]" ref="cardRef">
     <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
       <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
-      <UTabs
-        :items="[{ label: 'month' }, { label: 'week' }]"
-        @change="selectPeriod"
-        :ui="{
-          list: {
-            height: 'h-6',
-            padding: 'p-0.5',
-            background: 'bg-gray-100 dark:bg-gray-950',
-            marker: {
-              rounded: 'rounded-md',
-              background: 'bg-white dark:bg-gray-900',
-            },
-            tab: {
-              height: 'h-5',
-              padding: 'px-2',
-              size: 'text-xs',
-              font: 'font-light',
-              rounded: 'rounded-sm',
-              active: 'text-gray-800 dark:text-gray-200',
-              inactive: 'hover:text-gray-900 dark:hover:text-gray-100',
+      <div class="flex items-center gap-2">
+        <UTabs
+          :items="[{ label: 'month' }, { label: 'week' }]"
+          @change="selectPeriod"
+          :ui="{
+            container: 'hidden',
+            list: {
+              height: 'h-6',
+              padding: 'p-0.5',
+              background: 'bg-gray-100 dark:bg-gray-950',
+              marker: {
+                rounded: 'rounded-md',
+                background: 'bg-white dark:bg-gray-900',
+              },
+              tab: {
+                height: 'h-5',
+                padding: 'px-2',
+                size: 'text-xs',
+                font: 'font-light',
+                rounded: 'rounded-sm',
+                active: 'text-gray-800 dark:text-gray-200',
+                inactive: 'hover:text-gray-900 dark:hover:text-gray-100',
+              }
             }
-          }
-        }"
-      />
+          }"
+        />
+        <UDropdown
+          v-model:open="downloadDropdownOpen"
+          :items="downloadsItems"
+          :ui="{
+            width: 'w-auto relative',
+            padding: 'p-0.5',
+            item: {
+              base: 'font-light gap-0',
+              padding: 'px-1 py-1',
+              size: 'text-xs',
+              icon: {
+                active: 'text-gray-800 dark:text-gray-200',
+                inactive: 'text-gray-600 dark:text-gray-400',
+              }
+            }
+          }"
+        >
+          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false" aria-label="Download chart" />
+        </UDropdown>
+      </div>
     </div>
-    <VisXYContainer :data="data" class="h-96" :width="width">
-      <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
-      <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
+    <div id="npm-chart" class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-6 -mx-6 sm:rounded-lg">
+      <VisXYContainer
+        :data="data"
+        class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
+        :width="width"
+        :padding="{ top: 10 }"
+        :margin="{ bottom: 15, left: 10 }"
+      >
+        <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
+        <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
 
-      <VisAxis type="x" :x="x" :tick-format="xTicks" />
-      <VisAxis type="y" :tick-format="(y) => formatNumberCompact(y)" />
+        <VisAxis type="x" :x="x" :tick-format="xTicks" />
+        <VisAxis type="y" :tick-format="(y) => formatNumberCompact(y)" />
 
-      <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
+        <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
 
-      <VisTooltip />
-    </VisXYContainer>
+        <VisTooltip />
+      </VisXYContainer>
+    </div>
   </div>
 </template>
 

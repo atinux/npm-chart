@@ -74,10 +74,15 @@ defineShortcuts({
 
     <div v-if="pending || data" class="mt-4">
       <ClientOnly>
-        <NPMChart v-if="data" :data="data.downloads" :total="data.total" />
-        <USkeleton v-else-if="pending" class="w-full h-[412px]" />
+        <NPMChart
+          v-if="data"
+          :pkg="data.name"
+          :data="data.downloads"
+          :total="data.total"
+        />
+        <USkeleton v-else-if="pending" class="w-full h-[465px]" />
         <template #fallback>
-          <USkeleton class="w-full h-[425px]" />
+          <USkeleton class="w-full h-[465px]" />
         </template>
       </ClientOnly>
     </div>
