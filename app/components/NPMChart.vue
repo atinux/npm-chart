@@ -144,7 +144,7 @@ defineShortcuts({
         </UDropdown>
       </div>
     </div>
-    <div id="npm-chart" class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-6 -mx-6 sm:rounded-lg">
+    <div id="npm-chart" class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-4 -mx-4 sm:p-6 sm:-mx-6 sm:rounded-lg">
       <VisXYContainer
         :data="data"
         class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
