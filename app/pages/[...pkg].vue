@@ -11,12 +11,12 @@ useSeoMeta({
 if (import.meta.server) {
   if (data.value) {
     defineOgImageComponent('Package', {
-      pkg: data,
+      pkg: data.value,
     })
   }
   else {
-    useSeoMeta({
-      ogImage: '/og-image.png',
+    defineOgImage({
+      url: '/og-image.png',
     })
   }
 }
