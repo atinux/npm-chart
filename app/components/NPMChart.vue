@@ -64,18 +64,18 @@ const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amo
 function selectPeriod(index: number) {
   period.value = index === 0 ? 'monthly' : 'weekly'
 }
+const downloading = ref(false)
 async function download(type: 'png' | 'svg') {
+  downloading.value = true
   const downloadMethod = type === 'png' ? domToPng : domToSvg
   const dataUrl = await downloadMethod(document.querySelector('#npm-chart') as Node, {
-    scale: 3,
-    style: {
-      // margin: '10px'
-    }
+    scale: 3
   })
   const link = document.createElement('a')
   link.download = `${props.pkg}-downloads.${type}`
   link.href = dataUrl
   link.click()
+  downloading.value = false
 }
 const downloadDropdownOpen = ref(false)
 const downloadsItems = [[
@@ -134,7 +134,7 @@ defineShortcuts({
             }
           }"
         >
-          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false" aria-label="Download chart" />
+          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false" aria-label="Download chart" :loading="downloading" />
         </UDropdown>
       </div>
     </div>
