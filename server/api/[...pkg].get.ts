@@ -13,11 +13,14 @@ export default eventHandler(async (event) => {
   // Get all time series data for the package on npm
   const downloads = await fetchNpmDownloads(event, pkg, until)
 
+  const total = Object.entries(downloads).reduce((acc, [_date, amount]) => acc + amount, 0)
+
   return {
     name,
     description,
     homepage,
     version,
+    total,
     downloads
   }
 })

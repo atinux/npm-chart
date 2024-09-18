@@ -9,9 +9,16 @@ useSeoMeta({
   description: () => data.value?.description || '',
 })
 if (import.meta.server) {
-  defineOgImageComponent('Package', {
-    pkg: data,
-  })
+  if (data.value) {
+    defineOgImageComponent('Package', {
+      pkg: data,
+    })
+  }
+  else {
+    useSeoMeta({
+      ogImage: '/og-image.png',
+    })
+  }
 }
 defineShortcuts({
   escape: () => navigateTo('/'),
@@ -67,7 +74,7 @@ defineShortcuts({
 
     <div v-if="pending || data" class="mt-4">
       <ClientOnly>
-        <NPMChart v-if="data" :data="data.downloads" />
+        <NPMChart v-if="data" :data="data.downloads" :total="data.total" />
         <USkeleton v-else-if="pending" class="w-full h-[412px]" />
         <template #fallback>
           <USkeleton class="w-full h-[425px]" />

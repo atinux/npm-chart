@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format } from 'date-fns'
+import { format } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 
 const cardRef = ref<HTMLElement | null>(null)
@@ -7,6 +7,10 @@ const period = ref<Period>('monthly')
 const { width } = useElementSize(cardRef)
 
 const props = defineProps({
+  total: {
+    type: Number,
+    required: true
+  },
   data: {
     type: Object as PropType<Record<string, number>>,
     required: true
@@ -33,8 +37,6 @@ const data = computed(() => {
   }
   return Object.entries(periodData).map(([period, { date, amount }]) => ({ date, amount }))
 })
-
-const total = computed(() => data.value.reduce((acc: number, { amount }) => acc + amount, 0))
 
 const formatNumber = new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format
 const formatNumberCompact = new Intl.NumberFormat('en', { maximumFractionDigits: 0, notation: 'compact' }).format

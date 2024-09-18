@@ -5,27 +5,20 @@ defineProps({
     required: true,
   },
 })
+const formatNumber = new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col justify-center pl-12">
-    <h1 class="text-8xl font-bold flex items-center gap-1">
-      <span>{{ pkg.name }}</span>
-      <span
-        class="text-4xl"
-        style="color: #666;"
-      >
-        v{{ pkg.version }}
-      </span>
-    </h1>
-    <p class="text-4xl">
-      {{ pkg.description }}
-    </p>
-    <span
-      v-if="pkg.homepage"
-      class="text-2xl text-orange-400"
-    >
-      {{ pkg.homepage.replace(/^https?:\/\//, '').replace(/\/$/, '') }}
-    </span>
+  <div class="w-full h-full flex flex-col justify-center pl-20 relative bg-gray-100 gap-6">
+    <img src="/bg-og.png" class="absolute top-0 -right-40 w-full h-full object-cover opacity-50 z-0">
+    <div class="text-5xl font-bold z-1">
+      <span class="text-amber-500">npm</span><span class="relative -left-2">.chart.dev</span>
+    </div>
+    <div class="z-2 text-7xl font-bold flex items-center p-0">
+      {{ pkg.name }}
+    </div>
+    <div class="z-3 font-mono text-5xl text-gray-600 dark:text-gray-400 mt-2">
+      {{ formatNumber(pkg.total) }} total npm downloads
+    </div>
   </div>
 </template>

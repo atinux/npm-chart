@@ -9,7 +9,7 @@ const randomPackages = useState('pkgs', () => {
 })
 function goToPackage(pkg: string) {
   loading.value = true
-  navigateTo(`/${pkg}`)
+  navigateTo(`/${pkg.trim()}`)
 }
 useSeoMeta({
   title: 'NPM Chart',
@@ -24,7 +24,7 @@ useSeoMeta({
     <h1 class="text-4xl font-bold uppercase">
       NPM Chart
     </h1>
-    <p class="text-sm text-gray-500 mt-1 text-center">
+    <p class="text-sm text-gray-500 mt-1 text-center px-6 sm:px-0">
       Search for a package to see its download stats over time.
     </p>
     <form class="flex gap-1 mt-4" @submit.prevent="goToPackage(pkg)">

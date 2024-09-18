@@ -14,9 +14,8 @@ https://npm.chart.dev
 
 ## TODO:
 
-- [ ] Plausible
 - [ ] Screenshot PNG/SVG
-- [ ] OG Image
+- [ ] Page speed
 - [ ] Share on X
 
 ## Setup
@@ -55,3 +54,12 @@ Then checkout your server logs, analaytics and more in the [NuxtHub Admin](https
 
 You can also deploy using [Cloudflare Pages CI](https://hub.nuxt.com/docs/getting-started/deploy#cloudflare-pages-ci).
 
+
+## Credits
+
+- [npm-stat.com](https://npm-stat.com) for the npm downloads API
+- [@danielroe](https://github.com/danielroe) for the domain name
+
+## License
+
+[MIT](./LICENSE)

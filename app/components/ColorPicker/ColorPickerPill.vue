@@ -1,6 +1,12 @@
 <!-- Source: https://github.com/nuxt/ui/blob/dev/docs/components/color-picker/ColorPickerPill.vue  -->
 <script setup lang="ts">
-defineProps<{ color: { value: string; hex: string }; selected: { value: string } }>()
+defineProps<{
+  color: {
+    value: string,
+    hex: string
+  },
+  selected: { value: string }
+}>()
 defineEmits(['select'])
 </script>
 
