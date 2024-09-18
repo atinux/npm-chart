@@ -64,7 +64,6 @@ const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amo
 function selectPeriod(index: number) {
   period.value = index === 0 ? 'monthly' : 'weekly'
 }
-
 const processingDownloadableAsset = ref(false)
 // Only show the loader if there's a delay in generation for 
 // over a certain limit. 
@@ -83,11 +82,9 @@ function showLoaderWithDelay() {
     processingDownloadableAsset.value = false
   }
 }
-
 async function download(type: 'png' | 'svg') {
   const endLoader = showLoaderWithDelay()
   try {
-    processingDownloadableAsset.value = true
     const downloadMethod = type === 'png' ? domToPng : domToSvg
     const dataUrl = await downloadMethod(document.querySelector('#npm-chart') as Node, {
       scale: 3,
@@ -116,55 +113,66 @@ defineShortcuts({
 <template>
   <div class="flex flex-col gap-2 w-full md:w-[680px]" ref="cardRef">
     <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
-      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads
-      </div>
+      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
       <div class="flex items-center gap-2">
-        <UTabs :items="[{ label: 'month' }, { label: 'week' }]" @change="selectPeriod" :ui="{
-          container: 'hidden',
-          list: {
-            height: 'h-6',
-            padding: 'p-0.5',
-            background: 'bg-gray-100 dark:bg-gray-950',
-            marker: {
-              rounded: 'rounded-md',
-              background: 'bg-white dark:bg-gray-900',
-            },
-            tab: {
-              height: 'h-5',
-              padding: 'px-2',
-              size: 'text-xs',
-              font: 'font-light',
-              rounded: 'rounded-sm',
-              active: 'text-gray-800 dark:text-gray-200',
-              inactive: 'hover:text-gray-900 dark:hover:text-gray-100',
+        <UTabs
+          :items="[{ label: 'month' }, { label: 'week' }]"
+          @change="selectPeriod"
+          :ui="{
+            container: 'hidden',
+            list: {
+              height: 'h-6',
+              padding: 'p-0.5',
+              background: 'bg-gray-100 dark:bg-gray-950',
+              marker: {
+                rounded: 'rounded-md',
+                background: 'bg-white dark:bg-gray-900',
+              },
+              tab: {
+                height: 'h-5',
+                padding: 'px-2',
+                size: 'text-xs',
+                font: 'font-light',
+                rounded: 'rounded-sm',
+                active: 'text-gray-800 dark:text-gray-200',
+                inactive: 'hover:text-gray-900 dark:hover:text-gray-100',
+              }
             }
-          }
-        }" />
+          }"
+        />
         <div v-if="processingDownloadableAsset" class="mt-1 animate-spin flex justify-center items-center">
           <Icon name="i-ph:circle-notch" class="bg-primary-800 dark:bg-primary-200" />
         </div>
-        <UDropdown v-if="!processingDownloadableAsset" v-model:open="downloadDropdownOpen" :items="downloadsItems" :ui="{
-          width: 'w-auto relative',
-          padding: 'p-0.5',
-          item: {
-            base: 'font-light gap-0',
-            padding: 'px-1 py-1',
-            size: 'text-xs',
-            icon: {
-              active: 'text-gray-800 dark:text-gray-200',
-              inactive: 'text-gray-600 dark:text-gray-400',
+        <UDropdown
+          v-if="!processingDownloadableAsset"
+          v-model:open="downloadDropdownOpen"
+          :items="downloadsItems"
+          :ui="{
+            width: 'w-auto relative',
+            padding: 'p-0.5',
+            item: {
+              base: 'font-light gap-0',
+              padding: 'px-1 py-1',
+              size: 'text-xs',
+              icon: {
+                active: 'text-gray-800 dark:text-gray-200',
+                inactive: 'text-gray-600 dark:text-gray-400',
+              }
             }
-          }
-        }">
-          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false"
-            aria-label="Download chart" />
+          }"
+        >
+          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false" aria-label="Download chart" />
         </UDropdown>
       </div>
     </div>
-    <div id="npm-chart"
-      class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-6 -mx-6 sm:rounded-lg">
-      <VisXYContainer :data="data" class="h-96 bg-gray-100 dark:bg-gray-950 rounded" :width="width"
-        :padding="{ top: 10 }" :margin="{ bottom: 15, left: 10 }">
+    <div id="npm-chart" class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-6 -mx-6 sm:rounded-lg">
+      <VisXYContainer
+        :data="data"
+        class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
+        :width="width"
+        :padding="{ top: 10 }"
+        :margin="{ bottom: 15, left: 10 }"
+      >
         <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
         <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
 
