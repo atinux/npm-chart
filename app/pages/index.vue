@@ -35,7 +35,7 @@ useSeoMeta({
         autofocus
         :ui="{
           trailing: { padding: { lg: 'pr-13' } },
-          icon: { trailing: { padding: { lg: 'pr-1' } } }
+          icon: { trailing: { pointer: '', padding: { lg: 'pr-1' } } }
         }">
         <template #trailing>
           <UButton type="submit" icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" aria-label="Search" />
