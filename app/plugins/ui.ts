@@ -17,7 +17,10 @@ function hexToRgb (hex: string) {
 export default defineNuxtPlugin({
   enforce: 'post',
   setup () {
+    const nuxtApp = useNuxtApp()
     const appConfig = useAppConfig()
+    const colorMode = useColorMode()
+    const options = useRoute().query || {}
 
     const root = computed(() => {
       const primary: Record<string, string> | undefined = colors[appConfig.ui.primary]
@@ -41,8 +44,22 @@ export default defineNuxtPlugin({
         window.localStorage.setItem('nuxt-ui-root', root.value)
       })
 
-      appConfig.ui.primary = window.localStorage.getItem('nuxt-ui-primary') || appConfig.ui.primary
-      appConfig.ui.gray = window.localStorage.getItem('nuxt-ui-gray') || appConfig.ui.gray
+      const primary = options.primary || window.localStorage.getItem('nuxt-ui-primary') || appConfig.ui.primary
+      if (colors[primary]) {
+        appConfig.ui.primary = primary
+      }
+
+      const gray = options.gray || window.localStorage.getItem('nuxt-ui-gray') || appConfig.ui.gray
+      if (colors[gray]) {
+        appConfig.ui.gray = gray
+      }
+
+      if (['light', 'dark'].includes(options.theme)) {
+        nuxtApp.hook('app:mounted', () => {
+          console.log('setting theme', options.theme)
+          colorMode.preference = options.theme
+        })
+      }
     }
     if (import.meta.server) {
       useHead({

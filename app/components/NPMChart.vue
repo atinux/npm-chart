@@ -7,6 +7,8 @@ const cardRef = ref<HTMLElement | null>(null)
 const period = ref<Period>('monthly')
 const periodSelected = ref(0)
 const { width } = useElementSize(cardRef)
+const appConfig = useAppConfig()
+const colorMode = useColorMode()
 
 const props = defineProps({
   pkg: {
@@ -90,6 +92,11 @@ defineShortcuts({
   'd-p': () => download('png'),
   'd-s': () => download('svg'),
 })
+
+const url = computed(() => {
+  return `https://npm.chart.dev/${props.pkg}?primary=${appConfig.ui.primary}&gray=${appConfig.ui.gray}&theme=${colorMode.value}`
+})
+const { copy, copied } = useClipboard({ source: url })
 </script>
 
 <template>
@@ -132,7 +139,7 @@ defineShortcuts({
             item: {
               base: 'font-light gap-0',
               padding: 'px-1 py-1',
-              size: 'text-xs',
+              size: 'text-sm',
               icon: {
                 active: 'text-gray-800 dark:text-gray-200',
                 inactive: 'text-gray-600 dark:text-gray-400',
@@ -140,8 +147,13 @@ defineShortcuts({
             }
           }"
         >
-          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="sm" :padded="false" aria-label="Download chart" :loading="downloading" class="relative -top-[1px]"/>
+          <UTooltip text="Download chart" :popper="{ placement: 'top' }">
+            <UButton variant="link" color="gray" icon="i-heroicons-camera" size="sm" :padded="false" aria-label="Download chart" :loading="downloading" />
+          </UTooltip>
         </UDropdown>
+        <UTooltip :text="copied ? 'URL copied' : 'Share chart'" :popper="{ placement: 'top' }">
+          <UButton variant="link" color="gray" :icon="copied ? 'i-heroicons-check' : 'i-heroicons-link'" size="xs" :padded="false" aria-label="Share chart" @click="copy()" class="ml-1" />
+        </UTooltip>
       </div>
     </div>
     <div id="npm-chart" class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-4 -mx-4 sm:p-6 sm:-mx-6 sm:rounded-lg">
