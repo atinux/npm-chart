@@ -45,7 +45,7 @@ const data = computed(() => {
 })
 
 const formatNumber = new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format
-const formatNumberCompact = new Intl.NumberFormat('en', { maximumFractionDigits: 0, notation: 'compact' }).format
+const formatNumberCompact = (value: number, maximumFractionDigits: number = 0) => Intl.NumberFormat('en', { maximumFractionDigits, notation: 'compact' }).format(value)
 
 const formatDate = (date: Date): string => {
   return ({
@@ -104,7 +104,7 @@ defineShortcuts({
           :ui="{
             container: 'hidden',
             list: {
-              height: 'h-6',
+              height: 'h-7',
               padding: 'p-0.5',
               background: 'bg-gray-100 dark:bg-gray-950',
               marker: {
@@ -112,7 +112,7 @@ defineShortcuts({
                 background: 'bg-white dark:bg-gray-900',
               },
               tab: {
-                height: 'h-5',
+                height: 'h-6',
                 padding: 'px-2',
                 size: 'text-xs',
                 font: 'font-light',
@@ -140,7 +140,7 @@ defineShortcuts({
             }
           }"
         >
-          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="xs" :padded="false" aria-label="Download chart" :loading="downloading" />
+          <UButton variant="link" color="gray" icon="i-heroicons-arrow-down-on-square" size="sm" :padded="false" aria-label="Download chart" :loading="downloading" class="relative -top-[1px]"/>
         </UDropdown>
       </div>
     </div>
@@ -149,14 +149,14 @@ defineShortcuts({
         :data="data"
         class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
         :width="width"
-        :padding="{ top: 15 }"
+        :padding="{ top: 10 }"
         :margin="{ bottom: 15, left: 10 }"
       >
         <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
         <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
 
         <VisAxis type="x" :x="x" :tick-format="xTicks" />
-        <VisAxis type="y" :tick-format="(y) => formatNumberCompact(y)" />
+        <VisAxis type="y" :tick-format="(y) => formatNumberCompact(y, 1)" />
 
         <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
 

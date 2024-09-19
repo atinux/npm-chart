@@ -82,9 +82,9 @@ defineShortcuts({
           :data="data.downloads"
           :total="data.total"
         />
-        <USkeleton v-else-if="pending" class="w-full h-[465px]" />
+        <USkeleton v-else-if="pending" class="w-full h-[468px]" />
         <template #fallback>
-          <USkeleton class="w-full h-[465px]" />
+          <USkeleton class="w-full h-[468px]" />
         </template>
       </ClientOnly>
     </div>
