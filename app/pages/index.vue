@@ -42,7 +42,7 @@ useSeoMeta({
         </template>
       </UInput>
     </form>
-    <div class="flex gap-1 mt-3">
+    <div class="flex flex-wrap justify-center gap-1 mt-3">
       <UButton
         v-for="pkg in randomPackages"
         :key="pkg"
