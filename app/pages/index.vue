@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const pkg = ref('')
 const loading = ref(false)
-const packages = ['vue', 'react', 'svelte', 'angular', 'solid-js', 'next', 'hono', 'fastify', 'nuxt', 'astro', 'supabase', '@adonisjs/core', '@strapi/strapi', '@nestjs/core','directus', 'lodash', 'date-fns', 'express', 'h3', 'nitropack', 'typescript', 'vite']
+const packages = ['vue', 'react', 'svelte', '@angular/core', 'solid-js', 'next', 'hono', 'fastify', 'nuxt', 'astro', 'supabase', '@adonisjs/core', '@strapi/strapi', '@nestjs/core','directus', 'lodash', 'date-fns', 'express', 'h3', 'nitropack', 'typescript', 'vite']
 // Get 4 random packages
 const randomPackages = useState('pkgs', () => {
   const clone = packages.slice()
