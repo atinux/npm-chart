@@ -1,13 +1,13 @@
 import { z } from 'zod'
-import { format, endOfMonth, subMonths } from 'date-fns'
+import { format, endOfWeek, subWeeks } from 'date-fns'
 
 export default eventHandler(async (event) => {
   const { pkg } = await getValidatedRouterParams(event, z.object({
     pkg: z.string().toLowerCase()
   }).parse)
 
-  // Get end of last month
-  const until = format(endOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd')
+  // Get end of last week
+  const until = format(endOfWeek(subWeeks(new Date(), 1)), 'yyyy-MM-dd')
 
   const { name, description, homepage, version } = await fetchNpmPackage(event, pkg)
   // Get all time series data for the package on npm

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { domToPng, domToSvg } from 'modern-screenshot'
-import { format } from 'date-fns'
+import { format, endOfMonth, subMonths } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip, VisAnnotations } from '@unovis/vue'
 
 const cardRef = ref<HTMLElement | null>(null)
@@ -35,23 +35,32 @@ interface DataRecord {
 const x = (_: DataRecord, i: number) => i
 const y = (d: DataRecord) => d.amount
 
-const data = computed(() => {
+const allData = computed(() => {
   const periodData = {}
   const periodFormat = period.value === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
+  const until = endOfMonth(subMonths(new Date(), 1))
   for (const date in props.data) {
-    const period = format(date, periodFormat)
-    periodData[period] ||= { amount: 0, date }
-    periodData[period].amount += props.data[date]
+    if (period.value === 'monthly' && new Date(date) >= until) {
+      continue
+    }
+    const p = format(date, periodFormat)
+    periodData[p] ||= { amount: 0, date }
+    periodData[p].amount += props.data[date]
   }
   return Object.entries(periodData).map(([period, { date, amount }]) => ({ date, amount }))
 })
+const data = computed(() => allData.value.slice(startDateIndex.value))
 
+const startDateIndex = ref(0)
+watch(period, () => {
+  startDateIndex.value = 0
+})
 const formatNumber = new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format
 const formatNumberCompact = (value: number, maximumFractionDigits: number = 0) => Intl.NumberFormat('en', { maximumFractionDigits, notation: 'compact' }).format(value)
 
-const formatDate = (date: Date): string => {
+const formatDate = (date: Date, withYear: boolean = false): string => {
   return ({
-    weekly: format(date, 'd MMM'),
+    weekly: format(date, 'd MMM' + (withYear ? ' yyyy' : '')),
     monthly: format(date, 'MMM yyy')
   })[period.value]
 }
@@ -176,6 +185,10 @@ const { copy, copied } = useClipboard({ source: url })
 
         <VisTooltip />
       </VisXYContainer>
+    </div>
+    <URange v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="sm" />
+    <div class="text-xs text-gray-600 dark:text-gray-400">
+      Start at {{ formatDate(allData[startDateIndex].date, true) }}
     </div>
   </div>
 </template>
