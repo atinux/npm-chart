@@ -186,9 +186,11 @@ const { copy, copied } = useClipboard({ source: url })
         <VisTooltip />
       </VisXYContainer>
     </div>
-    <URange v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="sm" />
-    <div class="text-xs text-gray-600 dark:text-gray-400">
-      Start at {{ formatDate(allData[startDateIndex].date, true) }}
+    <div class="mt-2">
+      <URange v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="sm" />
+      <div class="text-xs text-gray-600 dark:text-gray-400">
+        Start at {{ formatDate(allData[startDateIndex].date, true) }}
+      </div>
     </div>
   </div>
 </template>
