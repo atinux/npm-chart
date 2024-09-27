@@ -6,13 +6,15 @@ export const fetchComposerPackage = defineCachedFunction(async (_event: H3Event,
     const res = await $fetch(`https://packagist.org/packages/${pkg}.json`)
     const packageInfo = res.package
 
-    const version = Object.keys(packageInfo.versions)[1] || "dev-master"
+    const versions = Object.keys(packageInfo.versions)
+    const version = versions.length == 0 ? "dev-master" : (versions[0] == "dev-master" ? versions[1] : versions[0])
 
     return {
       name: packageInfo.name,
       description: packageInfo.description,
       version: version,
-      homepage: packageInfo.repository
+      homepage: packageInfo.repository,
+      total: packageInfo.downloads.total
     }
   } catch (error) {
     throw createError({
@@ -28,27 +30,25 @@ export const fetchComposerPackage = defineCachedFunction(async (_event: H3Event,
 })
 
 export const fetchComposerDownloads = defineCachedFunction(async (event: H3Event, pkg: string, until: string) => {
-  const res = await $fetch(`https://packagist.org/packages/${pkg}/stats/major/all.json`, {
+  const res = await $fetch(`https://packagist.org/packages/${pkg}/stats/all.json`, {
     params: {
-      average: 'weekly',
-      from: '2024-09-01',
+      average: 'monthly',
+      from: '2012-03-01', // When Packagist came to life
       to: until
     }
   })
 
-//   if (!res.values || !Array.isArray(res.values)) {
-//     throw createError({
-//       statusCode: 500,
-//       message: 'Invalid response from Packagist API'
-//     })
-//   }
+  if (!res.values || typeof res.values !== 'object') {
+    throw createError({
+      statusCode: 500,
+      message: 'Invalid response from Packagist API'
+    })
+  }
 
-  const versionsOfValues = Object.keys(res.values)
-  const lastVersion = versionsOfValues[versionsOfValues.length - 1]
-  const values = res.values[lastVersion]
   const dates = res.labels
+  const values = Object.values(res.values)[0]
   const downloads = {}
-  for (let i = 0; i < values.length; i++) {
+  for (let i = 0; i < dates.length; i++) {
     downloads[dates[i]] = values[i]
   }
 

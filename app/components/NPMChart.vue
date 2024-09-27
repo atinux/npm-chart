@@ -47,6 +47,8 @@ const allData = computed(() => {
     periodData[p] ||= { amount: 0, date }
     periodData[p].amount += props.data[date]
   }
+
+
   return Object.entries(periodData).map(([period, { date, amount }]) => ({ date, amount }))
 })
 const data = computed(() => allData.value.slice(startDateIndex.value))

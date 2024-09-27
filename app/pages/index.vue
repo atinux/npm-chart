@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const pkg = ref('')
 const loading = ref(false)
-const packages = ['laravel/framework', 'symfony/symfony', 'guzzlehttp/guzzle', 'phpunit/phpunit', 'doctrine/orm', 'twig/twig', 'monolog/monolog', 'league/flysystem', 'nikic/php-parser', 'egulias/email-validator']
+const packages = ['laravel/framework','pestphp/pest', 'livewire/livewire', 'symfony/symfony', 'guzzlehttp/guzzle', 'phpunit/phpunit', 'doctrine/orm', 'twig/twig', 'monolog/monolog', 'league/flysystem', 'nikic/php-parser', 'egulias/email-validator']
 const randomPackages = useState('pkgs', () => {
   const clone = packages.slice()
   return clone.sort(() => 0.5 - Math.random()).slice(0, 4)

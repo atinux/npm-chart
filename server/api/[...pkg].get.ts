@@ -12,18 +12,16 @@ export default eventHandler(async (event) => {
   const until = format(endOfWeek(subWeeks(new Date(), 1)), 'yyyy-MM-dd')
 
   // Replace npm package fetching with Packagist API
-  const { name, description, homepage, version } = await fetchComposerPackage(event, pkg)
+  const { name, description, homepage, version, total } = await fetchComposerPackage(event, pkg)
   // Get all time series data for the package on Packagist
   const downloads = await fetchComposerDownloads(event, pkg, until)
-
-  const total = Object.entries(downloads).reduce((acc, [_date, amount]) => acc + amount, 0)
 
   return {
     name,
     description,
     homepage,
     version,
+    downloads,
     total,
-    downloads
   }
 })

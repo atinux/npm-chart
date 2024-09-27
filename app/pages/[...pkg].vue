@@ -60,7 +60,7 @@ defineShortcuts({
         <a
           v-if="data"
           class="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
-          :href="`https://packagist.org/packages/${data.name}`"
+          :href="`https://packagist.org/packages/${data.name}#${data.version}`"
           target="_blank"
         >
           v{{ data.version }}
