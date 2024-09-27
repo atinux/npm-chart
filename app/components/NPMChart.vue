@@ -103,7 +103,7 @@ defineShortcuts({
 })
 
 const url = computed(() => {
-  return `https://npm.chart.dev/${props.pkg}?primary=${appConfig.ui.primary}&gray=${appConfig.ui.gray}&theme=${colorMode.value}`
+  return `https://composer.chart.dev/${props.pkg}?primary=${appConfig.ui.primary}&gray=${appConfig.ui.gray}&theme=${colorMode.value}`
 })
 const { copy, copied } = useClipboard({ source: url })
 </script>
@@ -111,7 +111,7 @@ const { copy, copied } = useClipboard({ source: url })
 <template>
   <div class="flex flex-col gap-2 w-full md:w-[680px]" ref="cardRef">
     <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
-      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total Composer downloads</div>
       <div class="flex items-center gap-2">
         <UTabs
           :items="[{ label: 'month' }, { label: 'week' }]"

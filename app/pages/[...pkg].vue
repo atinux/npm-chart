@@ -1,11 +1,20 @@
 <script setup lang="ts">
+interface PackageData {
+  name: string;
+  version: string;
+  description: string;
+  homepage?: string;
+  downloads: any; // Replace 'any' with the actual type of downloads data
+  total: number;
+}
+
 const pkg = useRoute().params.pkg.join('/')
-const { data, pending } = await useFetch(`/api/${pkg}`, {
+const { data, pending } = await useFetch<PackageData>(`/api/${pkg}`, {
   lazy: import.meta.client,
 })
 useSeoMeta({
-  title: () => `${data.value?.name || pkg} npm downloads - NPM Chart`,
-  ogTitle: () => `${data.value?.name || pkg} npm downloads`,
+  title: () => `${data.value?.name || pkg} Composer downloads - Composer Chart`,
+  ogTitle: () => `${data.value?.name || pkg} Composer downloads`,
   description: () => data.value?.description || '',
 })
 if (import.meta.server) {
@@ -51,7 +60,7 @@ defineShortcuts({
         <a
           v-if="data"
           class="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
-          :href="`https://npmjs.com/package/${data.name}`"
+          :href="`https://packagist.org/packages/${data.name}`"
           target="_blank"
         >
           v{{ data.version }}

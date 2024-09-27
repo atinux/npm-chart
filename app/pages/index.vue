@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const pkg = ref('')
 const loading = ref(false)
-const packages = ['vue', 'react', 'svelte', '@angular/core', 'solid-js', 'next', 'hono', 'fastify', 'nuxt', 'astro', 'supabase', '@adonisjs/core', '@strapi/strapi', '@nestjs/core','directus', 'lodash', 'date-fns', 'express', 'h3', 'nitropack', 'typescript', 'vite']
-// Get 4 random packages
+const packages = ['laravel/framework', 'symfony/symfony', 'guzzlehttp/guzzle', 'phpunit/phpunit', 'doctrine/orm', 'twig/twig', 'monolog/monolog', 'league/flysystem', 'nikic/php-parser', 'egulias/email-validator']
 const randomPackages = useState('pkgs', () => {
   const clone = packages.slice()
   return clone.sort(() => 0.5 - Math.random()).slice(0, 4)
@@ -12,26 +11,26 @@ function goToPackage(pkg: string) {
   navigateTo(`/${pkg.trim()}`)
 }
 useSeoMeta({
-  title: 'NPM Chart',
-  ogTitle: 'NPM Chart',
-  description: 'Visualize npm downloads in a beautiful chart, ready to be shared with your community.',
-  ogImage: 'https://npm.chart.dev/og-image.png',
+  title: 'Composer Chart',
+  ogTitle: 'Composer Chart',
+  description: 'Visualize Composer package downloads in a beautiful chart, ready to be shared with your community.',
+  ogImage: 'https://composer.chart.dev/og-image.png',
 })
 </script>
 
 <template>
   <div class="flex flex-col items-center justify-center h-screen">
     <h1 class="text-4xl font-bold uppercase">
-      NPM Chart
+      Composer Chart
     </h1>
     <p class="text-sm text-gray-500 mt-1 text-center px-6 sm:px-0">
-      Search for a package to see its download stats over time.
+      Search for a Composer package to see its download stats over time.
     </p>
     <form class="flex gap-1 mt-4" @submit.prevent="goToPackage(pkg)">
       <UInput
         v-model="pkg"
         size="lg"
-        placeholder="npm package"
+        placeholder="Composer package"
         autofocus
         :ui="{
           trailing: { padding: { lg: 'pr-13' } },
