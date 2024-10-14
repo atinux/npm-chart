@@ -13,12 +13,6 @@ export default defineNuxtConfig({
     cache: true
   },
 
-  nitro: {
-    unenv: {
-      external: ['node:process']
-    }
-  },
-
   icon: {
     clientBundle: {
       scan: true

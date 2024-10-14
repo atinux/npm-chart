@@ -17,7 +17,7 @@
     "@nuxt/eslint": "^0.6.0",
     "@nuxt/fonts": "^0.10.0",
     "@nuxt/ui": "^2.18.7",
-    "@nuxthub/core": "^0.7.30",
+    "@nuxthub/core": "^0.7.31",
     "@nuxtjs/plausible": "^1.0.3",
     "@unovis/ts": "1.4.3-beta.0",
     "@unovis/vue": "1.4.3-beta.0",
