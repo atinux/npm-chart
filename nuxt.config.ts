@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   future: { compatibilityVersion: 4 },
 
   // https://nuxt.com/modules
-  modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxt/ui', '@nuxt/fonts', '@vueuse/nuxt', 'nuxt-og-image', '@nuxtjs/plausible'],
+  modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxt/ui', '@nuxt/fonts', '@vueuse/nuxt', '@nuxtjs/plausible', 'nuxt-og-image'],
 
   // https://hub.nuxt.com/docs/getting-started/installation#options
   hub: {
@@ -13,18 +13,16 @@ export default defineNuxtConfig({
     cache: true
   },
 
+  nitro: {
+    unenv: {
+      external: ['node:process']
+    }
+  },
+
   icon: {
     clientBundle: {
       scan: true
     },
-  },
-
-  // Env variables - https://nuxt.com/docs/getting-started/configuration#environment-variables-and-private-tokens
-  runtimeConfig: {
-    public: {
-      // Can be overridden by NUXT_PUBLIC_HELLO_TEXT environment variable
-      helloText: 'Hello from the Edge 👋'
-    }
   },
 
   // https://eslint.nuxt.com
@@ -37,5 +35,5 @@ export default defineNuxtConfig({
   },
 
   // https://devtools.nuxt.com
-  devtools: { enabled: true }
+  devtools: { enabled: false }
 })
