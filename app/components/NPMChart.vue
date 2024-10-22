@@ -188,7 +188,7 @@ const { copy, copied } = useClipboard({ source: url })
     </div>
     <div class="mt-2">
       <URange v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="sm" />
-      <div class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+      <div class="text-xs text-gray-600 dark:text-gray-400 mt-2" v-if="allData[startDateIndex]">
         Start at {{ formatDate(allData[startDateIndex].date, true) }}
       </div>
     </div>
