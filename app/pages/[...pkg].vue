@@ -11,7 +11,7 @@ useSeoMeta({
 if (import.meta.server) {
   if (data.value) {
     defineOgImageComponent('Package', {
-      pkg: data.value,
+      pkg,
     })
   }
   else {
