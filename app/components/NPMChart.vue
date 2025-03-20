@@ -119,6 +119,17 @@ const { copy, copied } = useClipboard({ source: url })
 const { copy: copyEmbed, copied: copiedEmbed } = useClipboard({ source: iframeEmbed })
 
 const embedModalOpen = ref(false)
+
+const annotationItems = computed(() => {
+  return props.pkg.map((packageName, index) => ({
+    x: 0 + (index * Math.min(30, 200 / props.pkg.length)), // Closer horizontal spacing
+    y: '4%',
+    content: {
+      text: packageName,
+      color: props.colors[index],
+    } as UnovisText
+  }));
+})
 </script>
 
 <template>
@@ -188,7 +199,7 @@ const embedModalOpen = ref(false)
         :data="data"
         class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
         :width="width"
-        :padding="{ top: 10 }"
+        :padding="{ top: 10, bottom: 30 }"
         :margin="{ bottom: 15, left: 10 }"
       >
       <template v-for="name in pkg">
@@ -197,9 +208,8 @@ const embedModalOpen = ref(false)
       </template>
         <VisAxis type="x" :x :tick-format="xTicks" />
         <VisAxis type="y" :tick-format="(y: number) => formatNumberCompact(y, 1)" />
-          <VisCrosshair :template />
-        <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg.join(' vs '), color: 'var(--vis-annotation-text-color)' } as UnovisText }]" />
-
+        <VisCrosshair :template />
+        <VisAnnotations :items="annotationItems" />
         <VisTooltip />
       </VisXYContainer>
     </div>
