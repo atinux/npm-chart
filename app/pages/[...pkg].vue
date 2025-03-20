@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const pkg = useRoute().params.pkg.join('/')
-const { data, pending } = await useFetch(`/api/${pkg}`, {
-  lazy: import.meta.client,
+const pkg = (useRoute().params.pkg as string[]).join('/')
+const { data, pending } = await useFetch(`/api/packages/${pkg}`, {
+  lazy: true,
 })
 useSeoMeta({
   title: () => `${data.value?.name || pkg} npm downloads - NPM Chart`,
@@ -79,7 +79,7 @@ defineShortcuts({
         <NPMChart
           v-if="data"
           :pkg="data.name"
-          :data="data.downloads"
+          :data="data.downloads!"
           :total="data.total"
         />
         <USkeleton v-else-if="pending" class="w-full h-[468px]" />

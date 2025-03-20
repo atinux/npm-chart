@@ -17,13 +17,13 @@ export async function renderChartToSVG(downloadData: DownloadData, options: Char
   const { width = 680, height = 400 } = options
 
   // Prepare data - format dates and calculate scales
-  const data: DataPoint[] = Object.values(downloadData).map(({ date, amount }) => ({
+  const data: DataPoint[] = Object.entries(downloadData).map(([date, amount]) => ({
     date: new Date(date),
     downloads: amount
   })).sort((a, b) => a.date.getTime() - b.date.getTime())
 
   // Calculate scales manually
-  const dateRange: [Date, Date] = [data[0].date, data[data.length - 1].date]
+  const dateRange: [Date, Date] = [data[0]!.date, data.at(-1)!.date]
   const maxDownloads: number = Math.max(...data.map(d => d.downloads))
 
   // Ensure bottom of chart starts from 0
@@ -77,17 +77,19 @@ function generateLinePath(
   // Use a curve for smoother lines with fewer points
   let path = '';
 
-  for (let i = 0; i < simplifiedData.length; i++) {
-    const x = xScale(simplifiedData[i].date)
-    const y = yScale(simplifiedData[i].downloads)
+  if (simplifiedData.length === 0) return '';
 
-    if (i === 0) {
-      path += `M${x},${y}`
-    } else {
-      // Simpler line segments instead of curves to reduce complexity
-      path += ` L${x},${y}`
-    }
-  }
+  // Map data points to x,y coordinates
+  const points = simplifiedData.map(point => ({
+    x: xScale(point.date),
+    y: yScale(point.downloads)
+  }));
+
+  // Build path string starting with move command, followed by line commands
+  path = points.reduce((pathStr, point, index) => {
+    const command = index === 0 ? 'M' : ' L';
+    return pathStr + `${command}${point.x},${point.y}`;
+  }, '');
 
   return path;
 }
@@ -99,14 +101,16 @@ function simplifyData(data: DataPoint[], maxPoints: number): DataPoint[] {
   const step = Math.ceil(data.length / maxPoints);
   const result: DataPoint[] = [];
 
+  if(!data.length) return result;
+
   // Always include first and last points
-  result.push(data[0]);
+  result.push(data[0]!);
 
   for (let i = step; i < data.length - step; i += step) {
-    result.push(data[i]);
+    result.push(data[i]!);
   }
 
-  result.push(data[data.length - 1]);
+  result.push(data.at(-1)!);
 
   return result;
 }
@@ -134,17 +138,17 @@ function generateAreaPath(
   const simplifiedData = simplifyData(data, 50); // Use the same simplification as the line
 
   // Start at the bottom left
-  let path = `M${xScale(simplifiedData[0].date)},${height - padding.bottom} `
+  let path = `M${xScale(simplifiedData[0]!.date)},${height - padding.bottom} `
 
   // Add line segments for the top of the area (simplified)
   for (let i = 0; i < simplifiedData.length; i++) {
-    const x = xScale(simplifiedData[i].date)
-    const y = yScale(simplifiedData[i].downloads)
+    const x = xScale(simplifiedData[i]!.date)
+    const y = yScale(simplifiedData[i]!.downloads)
     path += ` L${x},${y}`
   }
 
   // Go to the bottom right and back to start
-  path += ` L${xScale(simplifiedData[simplifiedData.length - 1].date)},${height - padding.bottom} Z`
+  path += ` L${xScale(simplifiedData.at(-1)!.date)},${height - padding.bottom} Z`
 
   return path
 }

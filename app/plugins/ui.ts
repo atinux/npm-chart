@@ -1,16 +1,16 @@
 import colors from '#tailwind-config/theme/colors'
 
-const rxHex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/
+const HEX_REGEX = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
+const HEX_SHORTHAND_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
 function hexToRgb (hex: string) {
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
-  hex = hex.replace(shorthandRegex, function (_, r, g, b) {
+  hex = hex.replace(HEX_SHORTHAND_REGEX, function (_m: string, r: string, g: string, b: string) {
     return r + r + g + g + b + b
   })
 
-  const result = rxHex.exec(hex)
+  const result = HEX_REGEX.exec(hex)
   return result
-    ? `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}`
+    ? `${parseInt(result[1]!, 16)} ${parseInt(result[2]!, 16)} ${parseInt(result[3]!, 16)}`
     : null
 }
 
@@ -20,11 +20,11 @@ export default defineNuxtPlugin({
     const nuxtApp = useNuxtApp()
     const appConfig = useAppConfig()
     const colorMode = useColorMode()
-    const options = useRoute().query || {}
+    const options = useRoute().query as Record<string, string>
 
     const root = computed(() => {
-      const primary: Record<string, string> | undefined = colors[appConfig.ui.primary]
-      const gray: Record<string, string> | undefined = colors[appConfig.ui.gray]
+      const primary = colors[appConfig.ui.primary as keyof typeof colors]
+      const gray = colors[appConfig.ui.gray as keyof typeof colors]
 
       return `:root {
         ${Object.entries(primary || colors.green).map(([key, value]) => `--color-primary-${key}: ${hexToRgb(value)};`).join('\n')}
@@ -40,24 +40,23 @@ export default defineNuxtPlugin({
     })
 
     if (import.meta.client) {
-      watch(root, () => {
-        window.localStorage.setItem('nuxt-ui-root', root.value)
+      watch(root, (newValue: string) => {
+        window.localStorage.setItem('nuxt-ui-root', newValue)
       })
 
       const primary = options.primary || window.localStorage.getItem('nuxt-ui-primary') || appConfig.ui.primary
-      if (colors[primary]) {
+      if (colors[primary as keyof typeof colors]) {
         appConfig.ui.primary = primary
       }
 
       const gray = options.gray || window.localStorage.getItem('nuxt-ui-gray') || appConfig.ui.gray
-      if (colors[gray]) {
+      if (colors[gray as keyof typeof colors]) {
         appConfig.ui.gray = gray
       }
 
-      if (['light', 'dark'].includes(options.theme)) {
+      if(['light', 'dark'].includes(options.theme || '')) {
         nuxtApp.hook('app:mounted', () => {
-          console.log('setting theme', options.theme)
-          colorMode.preference = options.theme
+          colorMode.preference = options.theme!
         })
       }
     }
