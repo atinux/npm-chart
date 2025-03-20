@@ -15,15 +15,14 @@ const props = defineProps<{
   pkg: string[]
   total: number[]
   data: PackageDownloadsByDate
+  colors: string[]
 }>()
 
 const x = (_: SomeDataFormat[number], i: number) => i
 const accesorFn = (pkgName: string): { y: NumericAccessor<SomeDataFormat[number]>; color: string } => {
-  // TODO: Make it customizable!
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16)
   return {
     y: (d: SomeDataFormat[number]) => d.packages[pkgName],
-    color: '#'+randomColor
+    color: props.colors[props.pkg.indexOf(pkgName)]!
   }
 }
 

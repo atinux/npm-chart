@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import colors from '#tailwind-config/theme/colors'
+
 const packages = (useRoute().params.pkg as string[]).join('/').split(',')
 const { data, pending } = await useAsyncData(async () => {
   if (packages.length === 0) {
@@ -21,6 +23,27 @@ const downloadData = computed(() => {
 
   return result
 })
+
+
+const appConfig = useAppConfig()
+const colorMode = useColorMode()
+
+const pickedColors = ref<string[]>(Array.from({ length: packages.length }, (_, i) => {
+  const colorName = appConfig.ui.colors[i % appConfig.ui.colors.length] as keyof typeof colors
+  return colors[colorName][colorMode.value === 'dark' ? 400 : 500]
+}))
+
+// Reuse the primary colors from the app configuration
+const colorOptions = computed(() => 
+  [...appConfig.ui.colors, 'neutral']
+    .filter(color => color !== 'primary')
+    .map(colorName => colors[colorName as keyof typeof colors][colorMode.value === 'dark' ? 400 : 500])
+)
+
+// Function to update a package color
+const updatePackageColor = (packageIndex: number, newColor: string) => {
+  pickedColors.value[packageIndex] = newColor
+}
 
 const title = computed(() => `${data.value?.map(d => d.name).join(', ') || packages} npm downloads - NPM Chart`)
 
@@ -74,13 +97,38 @@ if (import.meta.server) {
       <span class="flex flex-wrap items-baseline gap-1.5">
         <template v-if="data">
         <template v-for="(packageData, idx) in data" :key="packageData.name">
-          <span class="lowercase">{{ packageData.name }}</span>
+          <UPopover>
+            <template #default="{ open }">
+              <button
+                class="lowercase inline-flex items-center cursor-pointer focus:outline-none"
+                :class="{ 'text-primary-500': open }"
+              >
+                <span class="inline-block w-3 h-3 rounded-full mr-1" :style="{ backgroundColor: pickedColors[idx] }"></span>
+                <span>{{ packageData.name }}</span>
+              </button>
+            </template>
+            <template #panel>
+              <div class="p-2">
+                <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">Pick a color for {{ packageData.name }}</div>
+                <div class="grid grid-cols-5 gap-1">
+                  <button
+                    v-for="(color, colorIdx) in colorOptions"
+                    :key="colorIdx"
+                    class="w-6 h-6 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 hover:scale-110 transition-transform"
+                    :style="{ backgroundColor: color }"
+                    :class="{ 'ring-2 ring-gray-500': color === pickedColors[idx] }"
+                    @click="updatePackageColor(idx, color)"
+                  />
+                </div>
+              </div>
+            </template>
+          </UPopover>
           <a
-          class="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
-          :href="`https://npmjs.com/package/${packageData.name}`"
-          target="_blank"
+            class="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
+            :href="`https://npmjs.com/package/${packageData.name}`"
+            target="_blank"
           >
-          v{{ packageData.version }}
+            v{{ packageData.version }}
           </a>
           <span v-if="idx < data.length - 1" class="text-gray-400 mx-1">vs</span>
         </template>
@@ -116,6 +164,7 @@ if (import.meta.server) {
           :pkg="data.map(d => d.name)"
           :data="downloadData"
           :total="data.map(d => d.total)"
+          :colors="pickedColors"
         />
         <USkeleton v-else-if="pending" class="w-full h-[468px]" />
         <template #fallback>
