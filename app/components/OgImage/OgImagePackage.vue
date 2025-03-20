@@ -8,9 +8,12 @@ const props = defineProps({
     required: true,
   },
 })
+
+// TODO: Do it FOR ALL PACKAGES HERE TOO
+
 const data = await $fetch(`/api/packages/${props.pkg}`)
 
-const periodData: Record<string, DataRecord> = {}
+const periodData: Record<string, any> = {}
 const periodFormat = 'MM-yyyy'
 const until = endOfMonth(subMonths(new Date(), 1))
 for (const date in data.downloads) {

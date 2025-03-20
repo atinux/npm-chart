@@ -2,7 +2,7 @@
 import { domToPng, domToSvg } from 'modern-screenshot'
 import { format, endOfMonth, subMonths } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip, VisAnnotations } from '@unovis/vue'
-import type { UnovisText } from '@unovis/ts'
+import type { NumericAccessor, UnovisText } from '@unovis/ts'
 
 const cardRef = ref<HTMLElement | null>(null)
 const period = ref<Period>('monthly')
@@ -12,30 +12,45 @@ const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
 const props = defineProps<{
-  pkg: string
-  total: number
-  data: Record<string, number>
+  pkg: string[]
+  total: number[]
+  data: PackageDownloadsByDate
 }>()
 
-const x = (_: DataRecord, i: number) => i
-const y = (d: DataRecord) => d.amount
+const x = (_: SomeDataFormat[number], i: number) => i
+const accesorFn = (pkgName: string): { y: NumericAccessor<SomeDataFormat[number]>; color: string } => {
+  // TODO: Make it customizable!
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16)
+  return {
+    y: (d: SomeDataFormat[number]) => d.packages[pkgName],
+    color: '#'+randomColor
+  }
+}
 
-const allData = computed(() => {
-  const periodData: Record<string, DataRecord> = {}
+type SomeDataFormat = { date: Date, packages: {[name:string]: number}}[]
+const allData = computed<SomeDataFormat>(() => {
+  const periodData: Record<string, Record<string, {amount: number, date: Date}>> = {}
   const periodFormat = period.value === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
   const until = endOfMonth(subMonths(new Date(), 1))
+  
   for (const date in props.data) {
     const dateObj = new Date(date)
     if (period.value === 'monthly' && dateObj >= until) {
       continue
     }
     const p = format(date, periodFormat)
-    periodData[p] ||= { amount: 0, date: dateObj }
+    periodData[p] ||= Object.fromEntries(props.pkg.map(pkg => [pkg, { amount: 0, date: dateObj }]))
     if (props.data[date]) {
-      periodData[p].amount += props.data[date]
+      for (const pkg of props.pkg) {
+        periodData[p][pkg]!.amount += props.data[date][pkg] ?? 0
+      }
     }
   }
-  return Object.entries(periodData).map(([_period, { date, amount }]) => ({ date, amount }))
+  const res = Object.entries(periodData).map(([_, pkgObj]) => ({
+    date: pkgObj[props.pkg[0]!]!.date,
+    packages: Object.fromEntries(props.pkg.map(pkg => [pkg, pkgObj[pkg]!.amount]))
+  })).sort((a, b) => a.date.getTime() - b.date.getTime())
+  return res
 })
 const data = computed(() => allData.value.slice(startDateIndex.value))
 
@@ -54,13 +69,14 @@ const formatDate = (date: Date, withYear: boolean = false): string => {
 }
 
 const xTicks = (i: number) => {
-  if (i === 0 || i === data.value.length - 1 || !data.value[i]) {
+  if (i === 0 || i === data.value.length - 1 || !data.value[i]?.date) {
     return ''
   }
-
-  return formatDate(data.value[i].date)
+  const res = formatDate(new Date(data.value[i].date))
+  console.log(res, data.value[i].date, i)
+  return res
 }
-const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amount)}`
+const template = (d: SomeDataFormat[number]) => `${formatDate(d.date)}<br><br>${props.pkg.map(pkg => `${pkg}: ${formatNumber(d.packages[pkg]!)}`).join(' downloads<br>')} downloads`
 function selectPeriod(index: number) {
   periodSelected.value = index
   period.value = index === 0 ? 'monthly' : 'weekly'
@@ -109,7 +125,9 @@ const embedModalOpen = ref(false)
 <template>
   <div class="flex flex-col gap-2 w-full md:w-[680px]" ref="cardRef">
     <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
-      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+      <!-- This needs a better way to display
+       <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+      -->
       <div class="flex items-center gap-2">
         <UTabs
           :items="[{ label: 'month' }, { label: 'week' }]"
@@ -174,15 +192,14 @@ const embedModalOpen = ref(false)
         :padding="{ top: 10 }"
         :margin="{ bottom: 15, left: 10 }"
       >
-        <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
-        <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
-
-        <VisAxis type="x" :x="x" :tick-format="xTicks" />
+      <template v-for="name in pkg">
+        <VisLine :x v-bind="accesorFn(name)" />
+        <VisArea :x v-bind="accesorFn(name)" :opacity="0.1" />
+      </template>
+        <VisAxis type="x" :x :tick-format="xTicks" />
         <VisAxis type="y" :tick-format="(y: number) => formatNumberCompact(y, 1)" />
-
-        <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
-
-        <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg, color: 'var(--vis-annotation-text-color)' } as UnovisText }]" />
+          <VisCrosshair :template />
+        <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg.join(' vs '), color: 'var(--vis-annotation-text-color)' } as UnovisText }]" />
 
         <VisTooltip />
       </VisXYContainer>
