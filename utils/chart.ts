@@ -37,11 +37,9 @@ export async function renderChartToSVG(downloadData: DownloadData, options: Char
 
   // Colors based on reference image
   const primaryColor: string = 'rgb(255, 153, 0)' // Orange color
-  const bgColor: string = '#ffffff' // White background
   const gridColor: string = '#e5e5e5' // Light gray for grid
 
-  // Generate simplified SVG with fewer elements
-  const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
+  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
     <!-- Minimal grid lines -->
     ${generateGridLines(width, height, 10, gridColor)}
 
@@ -51,8 +49,6 @@ export async function renderChartToSVG(downloadData: DownloadData, options: Char
     <!-- Line -->
     <path d="${pathData}" stroke="${primaryColor}" stroke-width="3" fill="none" />
   </svg>`
-
-  return svg
 }
 
 function generateLinePath(
@@ -173,37 +169,4 @@ function generateGridLines(width: number, height: number, count: number, color: 
   }
 
   return lines
-}
-
-function generateDataPoints(
-  data: DataPoint[],
-  width: number,
-  height: number,
-  dateRange: [Date, Date],
-  valueRange: [number, number],
-  color: string
-): string {
-  // For the clean look in your reference, we'll skip rendering individual data points
-  return ''
-
-  /*
-  // Uncomment this if you want to add data points
-  const padding = { left: 40, right: 20, top: 20, bottom: 40 }
-
-  const xScale = (date: Date): number => {
-    const percent = (date.getTime() - dateRange[0].getTime()) / (dateRange[1].getTime() - dateRange[0].getTime())
-    return padding.left + percent * (width - padding.left - padding.right)
-  }
-
-  const yScale = (value: number): number => {
-    const percent = (value - valueRange[0]) / (valueRange[1] - valueRange[0])
-    return height - padding.bottom - percent * (height - padding.top - padding.bottom)
-  }
-
-  return data.map(d => {
-    const x = xScale(d.date)
-    const y = yScale(d.downloads)
-    return `<circle cx="${x}" cy="${y}" r="3" fill="${color}" />`
-  }).join('')
-  */
 }
