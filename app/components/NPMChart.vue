@@ -100,12 +100,22 @@ defineShortcuts({
   w: () => selectPeriod(1),
   'd-p': () => download('png'),
   'd-s': () => download('svg'),
+  e: () => open.value = !open.value
 })
 
 const url = computed(() => {
   return `https://npm.chart.dev/${props.pkg}?primary=${appConfig.ui.primary}&gray=${appConfig.ui.gray}&theme=${colorMode.value}`
 })
+
+const iframeEmbed = computed(() => {
+  return `<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="${url.value.replace('npm.chart.dev/', 'npm.chart.dev/embed/')}" frameborder="0" allow="clipboard-write;" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="NPM Chart"></iframe></div>`
+})
+
 const { copy, copied } = useClipboard({ source: url })
+
+const { copy: copyEmbed, copied: copiedEmbed } = useClipboard({ source: iframeEmbed })
+
+const embedModalOpen = ref(false)
 </script>
 
 <template>
@@ -163,6 +173,9 @@ const { copy, copied } = useClipboard({ source: url })
         <UTooltip :text="copied ? 'URL copied' : 'Share chart'" :popper="{ placement: 'top' }">
           <UButton variant="link" color="gray" :icon="copied ? 'i-heroicons-check' : 'i-heroicons-link'" size="xs" :padded="false" aria-label="Share chart" @click="copy()" class="ml-1" />
         </UTooltip>
+        <UTooltip text="Embed chart" :popper="{ placement: 'top' }">
+          <UButton variant="link" color="gray" icon="i-heroicons-code-bracket" size="xs" :padded="false" aria-label="Embed chart" @click="embedModalOpen = true" class="ml-1" />
+        </UTooltip>
       </div>
     </div>
     <div id="npm-chart" class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-4 -mx-4 sm:p-6 sm:-mx-6 sm:rounded-lg">
@@ -193,6 +206,15 @@ const { copy, copied } = useClipboard({ source: url })
       </div>
     </div>
   </div>
+  <UModal v-model="embedModalOpen">
+    <div class="p-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+        Copy the code below to embed the chart on your website.
+      </div>
+      <UTextarea :value="iframeEmbed" class="mb-4"></UTextarea>
+      <UButton color="gray" :icon="copiedEmbed ? 'i-heroicons-check' : 'i-heroicons-link'" size="xs" :label="copiedEmbed ? 'Copied!' : 'Copy embed code'" @click="copyEmbed()" class="ml-1" />
+    </div>
+  </UModal>
 </template>
 
 <style scoped>
