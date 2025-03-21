@@ -5,7 +5,7 @@ const packages = ['vue', 'react', 'svelte', '@angular/core', 'solid-js', 'next',
 // Get 4 random packages
 const randomPackages = useState('pkgs', () => {
   const clone = packages.slice()
-  return clone.sort(() => 0.5 - Math.random()).slice(0, 4)
+  return clone.toSorted(() => 0.5 - Math.random()).slice(0, 4)
 })
 function goToPackage(pkg: string) {
   loading.value = true
