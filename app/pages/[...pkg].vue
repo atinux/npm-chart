@@ -13,6 +13,13 @@ const { data, pending } = await useAsyncData(async () => {
   return Promise.all(packages.value.map(pkg => $fetch(`/api/packages/${pkg}`)))
 })
 
+const maximumPackagesReached = computed(() => packages.value.length === 5)
+
+if(packages.value.length > 5) {
+  packages.value = packages.value.slice(0, 5)
+  navigateToPackages()
+}
+
 function addPackage() {
   if (!newPackage.value.trim() || packages.value.length >= 10) return
   packages.value.push(newPackage.value.trim())
@@ -101,22 +108,47 @@ if (import.meta.server) {
 <template>
   <div class="flex flex-col gap-1 w-full md:w-[680px] p-4 lg:p-0">
     <div class="flex flex-wrap justify-between items-center gap-2">
-      <form class="flex gap-1" @submit.prevent="addPackage">
+      <form class="flex gap-1 flex-1" @submit.prevent="addPackage">
         <UInput
           v-model="newPackage"
-          size="xs"
-          placeholder="Add package"
-          :disabled="(data?.length ?? 0) >= 10"
+          size="sm"
+          :placeholder="maximumPackagesReached ? 'Maximum of 5 packages reached' : 'Search for a package...'"
+          :ui="{
+            base: 'relative w-full',
+            form: 'flex-1',
+            icon: {
+              trailing: { pointer: 'cursor-pointer' }
+            },
+            input: {
+              color: {
+                gray: {
+                  outline: 'bg-transparent dark:bg-transparent'
+                }
+              }
+            }
+          }"
+          :loading="pending"
+          :disabled="maximumPackagesReached"
         >
+          <template #leading>
+            <UIcon name="i-heroicons-magnifying-glass-20-solid" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          </template>
           <template #trailing>
-            <UButton 
-              type="submit"
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-plus-small"
-              size="xs"
-              :disabled="!newPackage || (data?.length ?? 0) >= 10"
-            />
+            <UTooltip text="Add package">
+              <UButton
+                type="submit"
+                color="gray"
+                variant="ghost"
+                icon="i-heroicons-plus-small"
+                size="xs"
+                :disabled="!newPackage || maximumPackagesReached"
+              />
+            </UTooltip>
+          </template>
+          <template #help>
+            <span v-if="maximumPackagesReached" class="text-xs text-gray-500 dark:text-gray-400">
+              Maximum of 5 packages reached
+            </span>
           </template>
         </UInput>
       </form>
