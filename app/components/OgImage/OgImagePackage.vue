@@ -8,22 +8,30 @@ const props = defineProps({
     required: true,
   },
 })
-const data = await $fetch(`/api/${props.pkg}`)
 
-const periodData = {}
+// TODO: Do it FOR ALL PACKAGES HERE TOO
+
+const data = await $fetch(`/api/packages/${props.pkg}`)
+
+const periodData: Record<string, any> = {}
 const periodFormat = 'MM-yyyy'
 const until = endOfMonth(subMonths(new Date(), 1))
 for (const date in data.downloads) {
-  if (new Date(date) >= until) {
+  const dateObj = new Date(date)
+  if (dateObj >= until) {
     continue
   }
   const p = format(date, periodFormat)
-  periodData[p] ||= { amount: 0, date }
-  periodData[p].amount += data.downloads[date]
+  periodData[p] ||= { amount: 0, date: dateObj }
+  if (data.downloads[date]) {
+    periodData[p].amount += data.downloads[date]
+  }
 }
 
+const allData = Object.fromEntries(Object.values(periodData).map(({ date, amount }) => [date, amount]))
+
 // Generate SVG
-const svg = await renderChartToSVG(Object.entries(periodData).map(([, { date, amount }]) => ({ date, amount })), {
+const svg = await renderChartToSVG(allData, {
   width: 1260,
   height: 630,
 })

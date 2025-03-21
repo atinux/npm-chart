@@ -2,6 +2,7 @@
 import { domToPng, domToSvg } from 'modern-screenshot'
 import { format, endOfMonth, subMonths } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip, VisAnnotations } from '@unovis/vue'
+import type { AnnotationItem, NumericAccessor, UnovisText } from '@unovis/ts'
 
 const cardRef = ref<HTMLElement | null>(null)
 const period = ref<Period>('monthly')
@@ -10,44 +11,45 @@ const { width } = useElementSize(cardRef)
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
-const props = defineProps({
-  pkg: {
-    type: String,
-    required: true
-  },
-  total: {
-    type: Number,
-    required: true
-  },
-  data: {
-    type: Object as PropType<Record<string, number>>,
-    required: true
+const props = defineProps<{
+  pkg: string[]
+  total: number[]
+  data: PackageDownloadsByDate
+  colors: string[]
+}>()
+
+const x = (_: SomeDataFormat[number], i: number) => i
+const accesorFn = (pkgName: string): { y: NumericAccessor<SomeDataFormat[number]>; color: string } => {
+  return {
+    y: (d: SomeDataFormat[number]) => d.packages[pkgName],
+    color: props.colors[props.pkg.indexOf(pkgName)]!
   }
-})
-
-type Period = 'weekly' | 'monthly'
-
-interface DataRecord {
-  date: Date
-  downloads: number
 }
 
-const x = (_: DataRecord, i: number) => i
-const y = (d: DataRecord) => d.amount
-
-const allData = computed(() => {
-  const periodData = {}
+type SomeDataFormat = { date: Date, packages: {[name:string]: number}}[]
+const allData = computed<SomeDataFormat>(() => {
+  const periodData: Record<string, Record<string, {amount: number, date: Date}>> = {}
   const periodFormat = period.value === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
   const until = endOfMonth(subMonths(new Date(), 1))
+  
   for (const date in props.data) {
-    if (period.value === 'monthly' && new Date(date) >= until) {
+    const dateObj = new Date(date)
+    if (period.value === 'monthly' && dateObj >= until) {
       continue
     }
     const p = format(date, periodFormat)
-    periodData[p] ||= { amount: 0, date }
-    periodData[p].amount += props.data[date]
+    periodData[p] ||= Object.fromEntries(props.pkg.map(pkg => [pkg, { amount: 0, date: dateObj }]))
+    if (props.data[date]) {
+      for (const pkg of props.pkg) {
+        periodData[p][pkg]!.amount += props.data[date][pkg] ?? 0
+      }
+    }
   }
-  return Object.entries(periodData).map(([period, { date, amount }]) => ({ date, amount }))
+  const res = Object.entries(periodData).map(([_, pkgObj]) => ({
+    date: pkgObj[props.pkg[0]!]!.date,
+    packages: Object.fromEntries(props.pkg.map(pkg => [pkg, pkgObj[pkg]!.amount]))
+  })).sort((a, b) => a.date.getTime() - b.date.getTime())
+  return res
 })
 const data = computed(() => allData.value.slice(startDateIndex.value))
 
@@ -66,13 +68,13 @@ const formatDate = (date: Date, withYear: boolean = false): string => {
 }
 
 const xTicks = (i: number) => {
-  if (i === 0 || i === data.value.length - 1 || !data.value[i]) {
+  if (i === 0 || i === data.value.length - 1 || !data.value[i]?.date) {
     return ''
   }
-
-  return formatDate(data.value[i].date)
+  const res = formatDate(new Date(data.value[i].date))
+  return res
 }
-const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amount)}`
+const template = (d: SomeDataFormat[number]) => `${formatDate(d.date)}<br><br>${props.pkg.map(pkg => `${pkg}: ${formatNumber(d.packages[pkg]!)}`).join(' downloads<br>')} downloads`
 function selectPeriod(index: number) {
   periodSelected.value = index
   period.value = index === 0 ? 'monthly' : 'weekly'
@@ -100,7 +102,7 @@ defineShortcuts({
   w: () => selectPeriod(1),
   'd-p': () => download('png'),
   'd-s': () => download('svg'),
-  e: () => open.value = !open.value
+  e: () => downloadDropdownOpen.value = !downloadDropdownOpen.value
 })
 
 const url = computed(() => {
@@ -116,12 +118,28 @@ const { copy, copied } = useClipboard({ source: url })
 const { copy: copyEmbed, copied: copiedEmbed } = useClipboard({ source: iframeEmbed })
 
 const embedModalOpen = ref(false)
+const annotationItems = computed(() => {
+  return props.pkg.map((packageName, index): AnnotationItem => {    
+    return {
+      x: props.pkg.length === 1 
+        ? '40%'
+        : `${(index / (props.pkg.length - 1)) * 80 - Math.min(index, packageName.length)}%`,
+      y: '110.5%',
+      content: {
+        text: packageName,
+        color: props.colors[index],
+      } as UnovisText
+    };
+  });
+})
 </script>
 
 <template>
   <div class="flex flex-col gap-2 w-full md:w-[680px]" ref="cardRef">
     <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
-      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+      <!-- This needs a better way to display
+       <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+      -->
       <div class="flex items-center gap-2">
         <UTabs
           :items="[{ label: 'month' }, { label: 'week' }]"
@@ -183,26 +201,24 @@ const embedModalOpen = ref(false)
         :data="data"
         class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
         :width="width"
-        :padding="{ top: 10 }"
-        :margin="{ bottom: 15, left: 10 }"
+        :padding="{ top: 10, bottom: 0 }"
+        :margin="{ bottom: 30, left: 10 }"
       >
-        <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
-        <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
-
-        <VisAxis type="x" :x="x" :tick-format="xTicks" />
-        <VisAxis type="y" :tick-format="(y) => formatNumberCompact(y, 1)" />
-
-        <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
-
-        <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg, color: 'var(--vis-annotation-text-color)' } }]" />
-
+      <template v-for="name in pkg">
+        <VisLine :x v-bind="accesorFn(name)" />
+        <VisArea :x v-bind="accesorFn(name)" :opacity="0.1" />
+      </template>
+        <VisAxis type="x" :x :tick-format="xTicks" />
+        <VisAxis type="y" :tick-format="(y: number) => formatNumberCompact(y, 1)" />
+        <VisCrosshair :template />
+        <VisAnnotations :items="annotationItems" />
         <VisTooltip />
       </VisXYContainer>
     </div>
     <div class="mt-2">
       <URange v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="sm" />
       <div class="text-xs text-gray-600 dark:text-gray-400 mt-2" v-if="allData[startDateIndex]">
-        Start at {{ formatDate(allData[startDateIndex].date, true) }}
+        Start at {{ formatDate(allData[startDateIndex]!.date, true) }}
       </div>
     </div>
   </div>
