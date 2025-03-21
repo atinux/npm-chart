@@ -2,7 +2,7 @@
 import { domToPng, domToSvg } from 'modern-screenshot'
 import { format, endOfMonth, subMonths } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip, VisAnnotations } from '@unovis/vue'
-import type { NumericAccessor, UnovisText } from '@unovis/ts'
+import type { AnnotationItem, NumericAccessor, UnovisText } from '@unovis/ts'
 
 const cardRef = ref<HTMLElement | null>(null)
 const period = ref<Period>('monthly')
@@ -72,7 +72,6 @@ const xTicks = (i: number) => {
     return ''
   }
   const res = formatDate(new Date(data.value[i].date))
-  console.log(res, data.value[i].date, i)
   return res
 }
 const template = (d: SomeDataFormat[number]) => `${formatDate(d.date)}<br><br>${props.pkg.map(pkg => `${pkg}: ${formatNumber(d.packages[pkg]!)}`).join(' downloads<br>')} downloads`
@@ -119,16 +118,19 @@ const { copy, copied } = useClipboard({ source: url })
 const { copy: copyEmbed, copied: copiedEmbed } = useClipboard({ source: iframeEmbed })
 
 const embedModalOpen = ref(false)
-
 const annotationItems = computed(() => {
-  return props.pkg.map((packageName, index) => ({
-    x: 0 + (index * Math.min(30, 200 / props.pkg.length)), // Closer horizontal spacing
-    y: '4%',
-    content: {
-      text: packageName,
-      color: props.colors[index],
-    } as UnovisText
-  }));
+  return props.pkg.map((packageName, index): AnnotationItem => {    
+    return {
+      x: props.pkg.length === 1 
+        ? '40%'
+        : `${(index / (props.pkg.length - 1)) * 80 - Math.min(index, packageName.length)}%`,
+      y: '110.5%',
+      content: {
+        text: packageName,
+        color: props.colors[index],
+      } as UnovisText
+    };
+  });
 })
 </script>
 
@@ -199,8 +201,8 @@ const annotationItems = computed(() => {
         :data="data"
         class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
         :width="width"
-        :padding="{ top: 10, bottom: 30 }"
-        :margin="{ bottom: 15, left: 10 }"
+        :padding="{ top: 10, bottom: 0 }"
+        :margin="{ bottom: 30, left: 10 }"
       >
       <template v-for="name in pkg">
         <VisLine :x v-bind="accesorFn(name)" />
