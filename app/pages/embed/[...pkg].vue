@@ -5,13 +5,13 @@ definePageMeta({
   layout: 'embed',
 })
 
-const pkg = useRoute().params.pkg.join('/')
-const { data, pending } = await useFetch(`/api/${pkg}`, {
+const pkg = (useRoute().params.pkg as string[]).join('/')
+const { data, pending } = await useFetch(`/api/packages/${pkg}`, {
   lazy: import.meta.client,
 })
 
 if (import.meta.server) {
-  setResponseHeaders(useRequestEvent(), {
+  setResponseHeaders(useRequestEvent()!, {
     'X-Frame-Options': 'ALLOW-FROM *',
     'Content-Security-Policy': 'frame-ancestors *',
   })
@@ -58,7 +58,7 @@ useSeoMeta({
         <NPMChart
           v-if="data"
           :pkg="data.name"
-          :data="data.downloads"
+          :data="data.downloads!"
           :total="data.total"
         />
         <USkeleton v-else-if="pending" class="w-full h-[468px]" />

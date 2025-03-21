@@ -1,9 +1,25 @@
 import type { H3Event } from 'h3'
 
+type NpmPackageData = {
+  name: string;
+  description: string;
+  'dist-tags': Record<string, string>;
+  versions: Record<string, any>;
+  maintainers: Array<{ name: string, email: string }>;
+  time: Record<string, string>;
+  homepage?: string;
+  keywords?: string[];
+  repository?: { type: string, url: string };
+  author?: { name: string, email?: string, url?: string };
+  license?: string;
+  readme?: string;
+  bugs?: { url: string };
+}
+
 // https://hub.nuxt.com/docs/features/cache#server-functions-caching
 export const fetchNpmPackage = defineCachedFunction(async (_event: H3Event, pkg: string) => {
-  try {
-    const res = await $fetch<Record<string, Record<string, number>>>('https://registry.npmjs.org/' + pkg)
+  try { 
+    const res = await $fetch<NpmPackageData>(`https://registry.npmjs.org/${pkg}`)
     return {
       name: res.name,
       description: res.description,
@@ -31,11 +47,11 @@ export const fetchNpmDownloads = defineCachedFunction(async (event: H3Event, pkg
       until
     }
   })
-  const data = res[pkg] as Record<string, number>
+  const data = res[pkg]
 
-  // Remove firs entries with 0
+  // Remove first entries with 0
   for (const date in data) {
-    if (data[date] > 0) {
+    if (data[date]! > 0) {
       return data
     }
     delete data[date]

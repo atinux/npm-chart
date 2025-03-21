@@ -2,6 +2,7 @@
 import { domToPng, domToSvg } from 'modern-screenshot'
 import { format, endOfMonth, subMonths } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip, VisAnnotations } from '@unovis/vue'
+import type { UnovisText } from '@unovis/ts'
 
 const cardRef = ref<HTMLElement | null>(null)
 const period = ref<Period>('monthly')
@@ -10,44 +11,31 @@ const { width } = useElementSize(cardRef)
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
-const props = defineProps({
-  pkg: {
-    type: String,
-    required: true
-  },
-  total: {
-    type: Number,
-    required: true
-  },
-  data: {
-    type: Object as PropType<Record<string, number>>,
-    required: true
-  }
-})
-
-type Period = 'weekly' | 'monthly'
-
-interface DataRecord {
-  date: Date
-  downloads: number
-}
+const props = defineProps<{
+  pkg: string
+  total: number
+  data: Record<string, number>
+}>()
 
 const x = (_: DataRecord, i: number) => i
 const y = (d: DataRecord) => d.amount
 
 const allData = computed(() => {
-  const periodData = {}
+  const periodData: Record<string, DataRecord> = {}
   const periodFormat = period.value === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
   const until = endOfMonth(subMonths(new Date(), 1))
   for (const date in props.data) {
-    if (period.value === 'monthly' && new Date(date) >= until) {
+    const dateObj = new Date(date)
+    if (period.value === 'monthly' && dateObj >= until) {
       continue
     }
     const p = format(date, periodFormat)
-    periodData[p] ||= { amount: 0, date }
-    periodData[p].amount += props.data[date]
+    periodData[p] ||= { amount: 0, date: dateObj }
+    if (props.data[date]) {
+      periodData[p].amount += props.data[date]
+    }
   }
-  return Object.entries(periodData).map(([period, { date, amount }]) => ({ date, amount }))
+  return Object.entries(periodData).map(([_period, { date, amount }]) => ({ date, amount }))
 })
 const data = computed(() => allData.value.slice(startDateIndex.value))
 
@@ -100,7 +88,7 @@ defineShortcuts({
   w: () => selectPeriod(1),
   'd-p': () => download('png'),
   'd-s': () => download('svg'),
-  e: () => open.value = !open.value
+  e: () => downloadDropdownOpen.value = !downloadDropdownOpen.value
 })
 
 const url = computed(() => {
@@ -190,11 +178,11 @@ const embedModalOpen = ref(false)
         <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
 
         <VisAxis type="x" :x="x" :tick-format="xTicks" />
-        <VisAxis type="y" :tick-format="(y) => formatNumberCompact(y, 1)" />
+        <VisAxis type="y" :tick-format="(y: number) => formatNumberCompact(y, 1)" />
 
         <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
 
-        <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg, color: 'var(--vis-annotation-text-color)' } }]" />
+        <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg, color: 'var(--vis-annotation-text-color)' } as UnovisText }]" />
 
         <VisTooltip />
       </VisXYContainer>
@@ -202,7 +190,7 @@ const embedModalOpen = ref(false)
     <div class="mt-2">
       <URange v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="sm" />
       <div class="text-xs text-gray-600 dark:text-gray-400 mt-2" v-if="allData[startDateIndex]">
-        Start at {{ formatDate(allData[startDateIndex].date, true) }}
+        Start at {{ formatDate(allData[startDateIndex]!.date, true) }}
       </div>
     </div>
   </div>
