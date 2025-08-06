@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const appConfig = useAppConfig()
 const pkg = (useRoute().params.pkg as string[]).join('/')
 const { data, pending } = await useFetch(`/api/packages/${pkg}`, {
   lazy: true,
@@ -30,27 +31,26 @@ defineShortcuts({
 <template>
   <div class="flex flex-col gap-1 w-full md:w-[680px] p-4 lg:p-0">
     <div class="flex justify-between">
-      <UTooltip text="Shortcut" :shortcuts="['/']" :popper="{ placement: 'right' }">
+      <UTooltip text="Shortcut" :kbds="['meta', 'k']" :content="{ side: 'right' }">
         <UButton
           to="/"
           variant="link"
-          :padded="false"
-          color="gray"
+          color="neutral"
           icon="i-heroicons-magnifying-glass"
-          class="opacity-70 hover:opacity-100"
+          class="opacity-70 hover:opacity-100 px-0"
           size="xs"
         >
           Search another package
         </UButton>
       </UTooltip>
-      <ColorPicker />
+      <ThemePicker />
     </div>
     <h1 class="text-2xl font-bold">
       <span v-if="data || pending" class="flex items-baseline gap-1.5">
         <span class="lowercase">{{ data?.name || pkg }}</span>
         <a
           v-if="data"
-          class="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
+          class="text-sm text-dimmed hover:text-muted"
           :href="`https://npmjs.com/package/${data.name}`"
           target="_blank"
         >
@@ -68,7 +68,8 @@ defineShortcuts({
       v-if="data?.homepage"
       :href="data.homepage"
       target="_blank"
-      class="text-primary hover:underline truncate"
+      class="hover:underline truncate"
+      :class="appConfig.theme.blackAsPrimary ? 'text-muted' : 'text-primary'"
     >
       {{ data.homepage.replace(/^https?:\/\//, '').replace(/\/$/, '') }}
     </a>

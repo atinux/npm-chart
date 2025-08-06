@@ -1,8 +1,14 @@
 export default defineAppConfig({
+  theme: {
+    blackAsPrimary: false,
+  },
   ui: {
-    primary: 'amber',
+    colors: {
+      primary: 'amber',
+      neutral: 'gray',
+    },
     skeleton: {
-      background: 'bg-gray-200'
-    }
+      base: 'bg-accented',
+    },
   },
 })
