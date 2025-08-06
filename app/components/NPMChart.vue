@@ -5,8 +5,7 @@ import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip, Vi
 import type { UnovisText } from '@unovis/ts'
 
 const cardRef = ref<HTMLElement | null>(null)
-const period = ref<Period>('monthly')
-const periodSelected = ref(0)
+const periodSelected = ref<Period>('monthly')
 const { width } = useElementSize(cardRef)
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
@@ -22,11 +21,11 @@ const y = (d: DataRecord) => d.amount
 
 const allData = computed(() => {
   const periodData: Record<string, DataRecord> = {}
-  const periodFormat = period.value === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
+  const periodFormat = periodSelected.value === 'monthly' ? 'MM-yyyy' : 'ww-yyyy'
   const until = endOfMonth(subMonths(new Date(), 1))
   for (const date in props.data) {
     const dateObj = new Date(date)
-    if (period.value === 'monthly' && dateObj >= until) {
+    if (periodSelected.value === 'monthly' && dateObj >= until) {
       continue
     }
     const p = format(date, periodFormat)
@@ -40,7 +39,7 @@ const allData = computed(() => {
 const data = computed(() => allData.value.slice(startDateIndex.value))
 
 const startDateIndex = ref(0)
-watch(period, () => {
+watch(periodSelected, () => {
   startDateIndex.value = 0
 })
 const formatNumber = new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format
@@ -50,7 +49,7 @@ const formatDate = (date: Date, withYear: boolean = false): string => {
   return ({
     weekly: format(date, 'd MMM' + (withYear ? ' yyyy' : '')),
     monthly: format(date, 'MMM yyy')
-  })[period.value]
+  })[periodSelected.value]
 }
 
 const xTicks = (i: number) => {
@@ -61,10 +60,6 @@ const xTicks = (i: number) => {
   return formatDate(data.value[i].date)
 }
 const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amount)}`
-function selectPeriod(index: number) {
-  periodSelected.value = index
-  period.value = index === 0 ? 'monthly' : 'weekly'
-}
 const downloading = ref(false)
 async function download(type: 'png' | 'svg') {
   downloading.value = true
@@ -80,19 +75,23 @@ async function download(type: 'png' | 'svg') {
 }
 const downloadDropdownOpen = ref(false)
 const downloadsItems = [[
-  { icon: 'i-ph-file-png-light', label: '', click: () => download('png') },
-  { icon: 'i-ph-file-svg-light', label: '', click: () => download('svg') },
+  { icon: 'i-ph-file-png-light', label: 'Save as PNG', onSelect: () => download('png') },
+  { icon: 'i-ph-file-svg-light', label: 'Save as SVG', onSelect: () => download('svg') },
 ]]
 defineShortcuts({
-  m: () => selectPeriod(0),
-  w: () => selectPeriod(1),
+  m: () => {
+    periodSelected.value = 'monthly'
+  },
+  w: () => {
+    periodSelected.value = 'weekly'
+  },
   'd-p': () => download('png'),
   'd-s': () => download('svg'),
   e: () => downloadDropdownOpen.value = !downloadDropdownOpen.value
 })
 
 const url = computed(() => {
-  return `https://npm.chart.dev/${props.pkg}?primary=${appConfig.ui.primary}&gray=${appConfig.ui.gray}&theme=${colorMode.value}`
+  return `https://npm.chart.dev/${props.pkg}?blackAsPrimary=${appConfig.theme.blackAsPrimary}&primary=${appConfig.ui.colors.primary}&gray=${appConfig.ui.colors.neutral}&theme=${colorMode.value}`
 })
 
 const iframeEmbed = computed(() => {
@@ -109,78 +108,53 @@ const embedModalOpen = ref(false)
 <template>
   <div class="flex flex-col gap-2 w-full md:w-[680px]" ref="cardRef">
     <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
-      <div class="font-mono text-xs text-gray-600 dark:text-gray-400">{{ formatNumber(total) }} total npm downloads</div>
+      <div class="font-mono text-xs text-muted">{{ formatNumber(total) }} total npm downloads</div>
       <div class="flex items-center gap-2">
         <UTabs
-          :items="[{ label: 'month' }, { label: 'week' }]"
-          @change="selectPeriod"
+          :items="[{ label: 'month', value: 'monthly' }, { label: 'week', value: 'weekly' }]"
+          color="neutral"
           v-model="periodSelected"
+          size="sm"
           :ui="{
-            container: 'hidden',
-            list: {
-              height: 'h-7',
-              padding: 'p-0.5',
-              background: 'bg-gray-100 dark:bg-gray-950',
-              marker: {
-                rounded: 'rounded-md',
-                background: 'bg-white dark:bg-gray-900',
-              },
-              tab: {
-                height: 'h-6',
-                padding: 'px-2',
-                size: 'text-xs',
-                font: 'font-light',
-                rounded: 'rounded-sm',
-                active: 'text-gray-800 dark:text-gray-200',
-                inactive: 'hover:text-gray-900 dark:hover:text-gray-100',
-              }
-            }
+            root: 'h-7',
+            list: 'p-0.25 bg-transparent',
+            indicator: 'bg-white dark:bg-neutral-800',
+            trigger: 'data-[state=active]:text-default data-[state=inactive]:text-muted'
           }"
         />
-        <UDropdown
+        <UDropdownMenu
           v-model:open="downloadDropdownOpen"
           :items="downloadsItems"
-          :ui="{
-            width: 'w-auto relative',
-            padding: 'p-0.5',
-            item: {
-              base: 'font-light gap-0',
-              padding: 'px-1 py-1',
-              size: 'text-sm',
-              icon: {
-                active: 'text-gray-800 dark:text-gray-200',
-                inactive: 'text-gray-600 dark:text-gray-400',
-              }
-            }
-          }"
+          size="sm"
+          
         >
           <UTooltip text="Download chart" :popper="{ placement: 'top' }">
-            <UButton variant="link" color="gray" icon="i-heroicons-camera" size="sm" :padded="false" aria-label="Download chart" :loading="downloading" />
+            <UButton variant="link" color="neutral" icon="i-heroicons-camera" size="sm" :padded="false" aria-label="Download chart" :loading="downloading" />
           </UTooltip>
-        </UDropdown>
+        </UDropdownMenu>
         <UTooltip :text="copied ? 'URL copied' : 'Share chart'" :popper="{ placement: 'top' }">
-          <UButton variant="link" color="gray" :icon="copied ? 'i-heroicons-check' : 'i-heroicons-link'" size="xs" :padded="false" aria-label="Share chart" @click="copy()" class="ml-1" />
+          <UButton variant="link" color="neutral" :icon="copied ? 'i-heroicons-check' : 'i-heroicons-link'" size="xs" :padded="false" aria-label="Share chart" @click="copy()" class="ml-1" />
         </UTooltip>
         <UTooltip text="Embed chart" :popper="{ placement: 'top' }">
-          <UButton variant="link" color="gray" icon="i-heroicons-code-bracket" size="xs" :padded="false" aria-label="Embed chart" @click="embedModalOpen = true" class="ml-1" />
+          <UButton variant="link" color="neutral" icon="i-heroicons-code-bracket" size="xs" :padded="false" aria-label="Embed chart" @click="embedModalOpen = true" class="ml-1" />
         </UTooltip>
       </div>
     </div>
-    <div id="npm-chart" class="bg-gradient-to-b dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400 p-4 -mx-4 sm:p-6 sm:-mx-6 sm:rounded-lg">
+    <div id="npm-chart" class="bg-linear-to-b p-4 -mx-4 sm:p-6 sm:-mx-6 sm:rounded-lg" :class="[appConfig.theme.blackAsPrimary ? 'bg-neutral-950 dark:bg-neutral-50' : 'dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400']">
       <VisXYContainer
         :data="data"
-        class="h-96 bg-gray-100 dark:bg-gray-950 rounded"
+        class="h-96 bg-neutral-100 dark:bg-neutral-950 rounded"
         :width="width"
         :padding="{ top: 10 }"
         :margin="{ bottom: 15, left: 10 }"
       >
-        <VisLine :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" />
-        <VisArea :x="x" :y="y" color="rgb(var(--color-primary-DEFAULT))" :opacity="0.1" />
+        <VisLine :x="x" :y="y" color="var(--ui-primary)" />
+        <VisArea :x="x" :y="y" color="var(--ui-primary)" :opacity="0.1" />
 
         <VisAxis type="x" :x="x" :tick-format="xTicks" />
         <VisAxis type="y" :tick-format="(y: number) => formatNumberCompact(y, 1)" />
 
-        <VisCrosshair color="rgb(var(--color-primary-DEFAULT))" :template="template" />
+        <VisCrosshair color="var(--ui-primary)" :template="template" />
 
         <VisAnnotations :items="[{ x: 0, y: 350, content: { text: pkg, color: 'var(--vis-annotation-text-color)' } as UnovisText }]" />
 
@@ -188,52 +162,54 @@ const embedModalOpen = ref(false)
       </VisXYContainer>
     </div>
     <div class="mt-2">
-      <URange v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="sm" />
-      <div class="text-xs text-gray-600 dark:text-gray-400 mt-2" v-if="allData[startDateIndex]">
+      <USlider v-model="startDateIndex" :min="0" :max="allData.length - 2" :step="1" size="xs" />
+      <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-2" v-if="allData[startDateIndex]">
         Start at {{ formatDate(allData[startDateIndex]!.date, true) }}
       </div>
     </div>
   </div>
-  <UModal v-model="embedModalOpen">
-    <div class="p-4">
-      <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-        Copy the code below to embed the chart on your website.
+  <UModal v-model:open="embedModalOpen">
+    <template #content>
+      <div class="p-4">
+        <div class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
+          Copy the code below to embed the chart on your website.
+        </div>
+        <UTextarea :value="iframeEmbed" class="mb-4 w-full" autoresize />
+        <UButton :color="copiedEmbed ? 'success' : 'neutral'" :variant="copiedEmbed ? 'subtle' : 'solid'" :icon="copiedEmbed ? 'i-lucide-check' : 'i-lucide-copy'" size="xs" :label="copiedEmbed ? 'Copied!' : 'Copy embed code'" @click="copyEmbed()" class="ml-1" />
       </div>
-      <UTextarea :value="iframeEmbed" class="mb-4"></UTextarea>
-      <UButton color="gray" :icon="copiedEmbed ? 'i-heroicons-check' : 'i-heroicons-link'" size="xs" :label="copiedEmbed ? 'Copied!' : 'Copy embed code'" @click="copyEmbed()" class="ml-1" />
-    </div>
+    </template>
   </UModal>
 </template>
 
 <style scoped>
 .unovis-xy-container {
-  --vis-crosshair-line-stroke-color: rgb(var(--color-primary-500));
+  --vis-crosshair-line-stroke-color: var(--ui-primary);
   --vis-crosshair-circle-stroke-color: #fff;
 
-  --vis-axis-grid-color: rgb(var(--color-gray-200));
-  --vis-axis-tick-color: rgb(var(--color-gray-200));
-  --vis-axis-tick-label-color: rgb(var(--color-gray-400));
+  --vis-axis-grid-color: var(--ui-color-neutral-200);
+  --vis-axis-tick-color: var(--ui-color-neutral-200);
+  --vis-axis-tick-label-color: var(--ui-color-neutral-400);
 
   --vis-tooltip-background-color: #fff;
-  --vis-tooltip-border-color: rgb(var(--color-gray-200));
-  --vis-tooltip-text-color: rgb(var(--color-gray-900));
+  --vis-tooltip-border-color: var(--ui-color-neutral-200);
+  --vis-tooltip-text-color: var(--ui-color-neutral-900);
 
-  --vis-annotation-text-color: rgb(var(--color-primary-500));
+  --vis-annotation-text-color: var(--ui-primary);
 }
 
 .dark {
   .unovis-xy-container {
-    --vis-crosshair-line-stroke-color: rgb(var(--color-primary-400));
-    --vis-crosshair-circle-stroke-color: rgb(var(--color-gray-900));
+    --vis-crosshair-line-stroke-color: var(--ui-primary);
+    --vis-crosshair-circle-stroke-color: var(--ui-color-neutral-900);
 
-    --vis-axis-grid-color: rgb(var(--color-gray-800));
-    --vis-axis-tick-color: rgb(var(--color-gray-800));
-    --vis-axis-tick-label-color: rgb(var(--color-gray-500));
+    --vis-axis-grid-color: var(--ui-color-neutral-800);
+    --vis-axis-tick-color: var(--ui-color-neutral-800);
+    --vis-axis-tick-label-color: var(--ui-color-neutral-500);
 
-    --vis-tooltip-background-color: rgb(var(--color-gray-900));
-    --vis-tooltip-border-color: rgb(var(--color-gray-800));
+    --vis-tooltip-background-color: var(--ui-color-neutral-900);
+    --vis-tooltip-border-color: var(--ui-color-neutral-800);
     --vis-tooltip-text-color: #fff;
-    --vis-annotation-text-color: rgb(var(--color-primary-400));
+    --vis-annotation-text-color: var(--ui-primary);
   }
 }
 </style>

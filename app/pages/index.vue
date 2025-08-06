@@ -24,18 +24,18 @@ useSeoMeta({
     <h1 class="text-4xl font-bold uppercase">
       NPM Chart
     </h1>
-    <p class="text-sm text-gray-500 mt-1 text-center px-6 sm:px-0">
+    <p class="text-sm text-neutral-500 mt-1 text-center px-6 sm:px-0">
       Search for a package to see its download stats over time.
     </p>
     <form class="flex gap-1 mt-4" @submit.prevent="goToPackage(pkg)">
       <UInput
         v-model="pkg"
-        size="lg"
+        size="xl"
         placeholder="npm package"
         autofocus
         :ui="{
-          trailing: { padding: { lg: 'pr-13' } },
-          icon: { trailing: { pointer: '', padding: { lg: 'pr-1' } } }
+          trailing: 'pr-1',
+          base: 'bg-white dark:bg-neutral-950'
         }">
         <template #trailing>
           <UButton type="submit" icon="i-heroicons-magnifying-glass" :disabled="!pkg" :loading="loading" aria-label="Search" />
@@ -48,9 +48,10 @@ useSeoMeta({
         :key="pkg"
         :to="`/${pkg}`"
         @click="goToPackage(pkg)"
-        color="gray"
+        color="neutral"
+        variant="outline"
         :label="pkg"
-        size="xs"
+        size="sm"
       />
     </div>
   </div>

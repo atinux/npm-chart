@@ -37,7 +37,7 @@ const formatNumber = new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).f
 </script>
 
 <template>
-  <div class="w-full h-full bg-gray-100">
+  <div class="w-full h-full bg-neutral-100">
     <div class="-left-10 flex w-full h-full absolute opacity-50" v-html="svg" />
     <div class="w-full h-full flex flex-col justify-center pl-20 relative gap-6">
       <div class="text-5xl font-bold">
@@ -46,7 +46,7 @@ const formatNumber = new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).f
       <div class="text-7xl font-bold flex items-center p-0">
         {{ pkg }}
       </div>
-      <div class="font-mono text-5xl text-gray-600 dark:text-gray-400 mt-2">
+      <div class="font-mono text-5xl text-neutral-600 dark:text-neutral-400 mt-2">
         {{ formatNumber(data.total) }} total npm downloads
       </div>
     </div>

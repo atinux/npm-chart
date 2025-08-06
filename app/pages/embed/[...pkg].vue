@@ -29,7 +29,7 @@ useSeoMeta({
         <span class="lowercase">{{ data?.name || pkg }}</span>
         <a
           v-if="data"
-          class="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
+          class="text-sm text-neutral-400 dark:text-neutral-500 hover:text-neutral-500 dark:hover:text-neutral-400"
           :href="`https://npmjs.com/package/${data.name}`"
           target="_blank"
         >

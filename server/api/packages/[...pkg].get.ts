@@ -3,7 +3,7 @@ import { format, endOfWeek, subWeeks } from 'date-fns'
 
 export default eventHandler(async (event) => {
   const { pkg } = await getValidatedRouterParams(event, z.object({
-    pkg: z.string().toLowerCase()
+    pkg: z.string().toLowerCase(),
   }).parse)
 
   // Get end of last week
@@ -21,6 +21,6 @@ export default eventHandler(async (event) => {
     homepage,
     version,
     total,
-    downloads
+    downloads,
   }
 })
