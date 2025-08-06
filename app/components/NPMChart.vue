@@ -140,7 +140,7 @@ const embedModalOpen = ref(false)
         </UTooltip>
       </div>
     </div>
-    <div id="npm-chart" class="bg-linear-to-b p-4 -mx-4 sm:p-6 sm:-mx-6 sm:rounded-lg" :class="[appConfig.theme.blackAsPrimary ? 'bg-neutral-950 dark:bg-neutral-50' : 'dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400']">
+    <div id="npm-chart" class="bg-linear-to-b p-4 -mx-4 sm:p-6 sm:-mx-6 sm:rounded-lg" :class="[appConfig.theme.blackAsPrimary ? 'dark:from-neutral-300 dark:to-neutral-400 from-neutral-600 to-neutral-700' : 'dark:from-primary-400 dark:to-primary-500 from-primary-300 to-primary-400']">
       <VisXYContainer
         :data="data"
         class="h-96 bg-neutral-100 dark:bg-neutral-950 rounded"
