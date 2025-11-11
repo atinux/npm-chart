@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { endOfMonth, format, subMonths } from 'date-fns'
-import { renderChartToSVG } from '../../../utils/chart'
 
 const props = defineProps({
   pkg: {
